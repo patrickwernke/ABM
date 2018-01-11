@@ -1,62 +1,30 @@
-# model.py
-from mesa.space import ContinuousSpace
-from mesa import Agent, Model
-from mesa.time import RandomActivation
-import numpy as np
+from model import DuckModel, FemaleDuckAgent, MaleDuckAgent
 import matplotlib.pyplot as plt
 
-class DuckModel(Model):
-    """A model with some number of agents."""
-    def __init__(self, N_female, N_male, width, height):
-        self.num_females = N_female
-        self.num_males = N_male
-        self.grid = ContinuousSpace(width, height, True)
-        self.schedule = RandomActivation(self)
-        # Create agents
-        for i in range(self.num_females):
-            duck = FemaleDuckAgent(i, self)
-            self.schedule.add(duck)
-            # Add the agent to a random place
-            x = np.random.uniform(self.grid.x_min, self.grid.x_max)
-            y = np.random.uniform(self.grid.y_min, self.grid.y_max)
-            self.grid.place_agent(duck, (x, y))
-        for _ in range(self.num_males):
-            i+=1 # keep count from the previous i
-            duck = MaleDuckAgent(i, self)
-            self.schedule.add(duck)
-            x = np.random.uniform(self.grid.x_min, self.grid.x_max)
-            y = np.random.uniform(self.grid.y_min, self.grid.y_max)
-            self.grid.place_agent(duck, (x, y))
+def plot_ducks(plot_m, plot_f, model, pause=0.01):
+    x_m = []
+    y_m = []
+    x_f = []
+    y_f = []
+    for agent in model.schedule.agents:
+        if isinstance(agent, FemaleDuckAgent):        
+            x_f.append(agent.pos[0])
+            y_f.append(agent.pos[1])
+        else:
+            x_m.append(agent.pos[0])
+            y_m.append(agent.pos[1])
 
-    def step(self):
-        self.schedule.step()
+    plot_m.set_ydata(y_m)
+    plot_m.set_xdata(x_m)
+    plot_f.set_ydata(y_f)
+    plot_f.set_xdata(x_f)
+    
+    plt.draw()
+    plt.pause(pause)
 
-class DuckAgent(Agent):
-    """ An agent (a duck) with random speed."""
-    def __init__(self, unique_id, model):
-        super().__init__(unique_id, model)
-        self.speed = np.random.uniform(0.5,3)
 
-    def move(self):
-        angle = np.random.uniform(0, 2*np.pi)
-        distance = np.random.uniform(0,self.speed)
-        
-        x=self.pos[0]
-        y=self.pos[1]
-        newx = x + distance * np.cos(angle)
-        newy = y + distance * np.sin(angle)
-        new_position = (newx,newy)
-        
-        self.model.grid.move_agent(self, self.model.grid.torus_adj(new_position))
 
-    def step(self):
-        self.move()
 
-class FemaleDuckAgent(DuckAgent):
-    pass
-
-class MaleDuckAgent(DuckAgent):
-    pass
 
 if __name__ == '__main__':
     model = DuckModel(10, 10, 100, 100)
@@ -64,24 +32,13 @@ if __name__ == '__main__':
     plt.ion()
     fig=plt.figure()
     ax=fig.add_subplot(111)
-    xs = []
-    ys = []
-    for agent in model.schedule.agents:
-        xs.append(agent.pos[0])
-        ys.append(agent.pos[1])    
+    
     ax.set_xlim(0,100)
     ax.set_ylim(0,100)
-    plot, = ax.plot(xs, ys, 'o')
-    
+    plot_m, = ax.plot([], [], 'o', color='xkcd:blue')
+    plot_f, = ax.plot([], [], 'o', color='xkcd:hot pink')
+    plt.show()
+    plot_ducks(plot_m, plot_f, model, 0.05)
     for i in range(200):
         model.step()
-        xs = []
-        ys = []
-        for agent in model.schedule.agents:
-            xs.append(agent.pos[0])
-            ys.append(agent.pos[1])
-        plot.set_xdata(xs)
-        plot.set_ydata(ys)
-        plt.draw()
-        plt.pause(0.05)
-        plt.show()
+        plot_ducks(plot_m, plot_f, model, 0.05)
