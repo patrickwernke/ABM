@@ -15,29 +15,34 @@ class DuckVisualisation():
         # give the window a fixed size
         fig=plt.figure(figsize=(10,50))
 
-        ax=fig.add_subplot(111)
+        self.ax=fig.add_subplot(111)
         # let the plot go to half the height of window
         plt.subplots_adjust(bottom=0.5)
 
         # set the axis domains
-        ax.set_xlim(0,100)
-        ax.set_ylim(0,100)
+        self.ax.set_xlim(0,100)
+        self.ax.set_ylim(0,100)
 
         # the data to plot
-        plot_m, = ax.plot([], [], 'o', color='b')
-        plot_f, = ax.plot([], [], 'o', color='pink')
+        plot_m, = self.ax.plot([], [], 'o', color='b')
+        plot_f, = self.ax.plot([], [], 'o', color='pink')
         plt.show()
 
         # create a slider for the tickrate
-        tick_pos = plt.axes([0.25, 0.1, 0.65, 0.03]) #the position of the slider
+        tick_pos = plt.axes([0.25, 0.1, 0.65, 0.03])
         tick_slider = Slider(tick_pos, 'Tickrate', 0.0, 0.1, valinit=self.tickrate)
         tick_slider.on_changed(self.tick_slider_update)
         self.sliders['Tickrate'] = tick_slider
 
-        # add pause/reset button
-        pause_pos = plt.axes([0.8, 0.025, 0.1, 0.04])
-        pause_button = Button(pause_pos, 'Pause/Unpause', color='r')
+        # add pause/unpause button
+        pause_pos = plt.axes([0.2, 0.025, 0.2, 0.04])
+        pause_button = Button(pause_pos, 'Pause/Unpause', color='b', hovercolor='lightblue')
         pause_button.on_clicked(self.pause_unpause)
+
+        # add reset button
+        reset_pos = plt.axes([0.6, 0.025, 0.2, 0.04])
+        reset_button = Button(reset_pos, 'Reset', color='r', hovercolor='orange')
+        reset_button.on_clicked(self.reset)
 
         # do a single step to show the model at start
         self.step(plot_m, plot_f)
@@ -83,6 +88,7 @@ class DuckVisualisation():
         plot_f.set_ydata(y_f)
         plot_f.set_xdata(x_f)
 
+        self.ax.set_title('Step: ' + str(self.t))
         plt.draw()
 
     # take the new slider value
@@ -93,6 +99,11 @@ class DuckVisualisation():
     # unpause if simulation is halted
     def pause_unpause(self, event):
         self.halt = False if self.halt else True
+
+    # reset the model with new parameters
+    def reset(self, event):
+        self.halt = True
+        self.t = 0
 
 
 if __name__ == '__main__':
