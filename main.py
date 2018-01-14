@@ -18,7 +18,7 @@ class DuckVisualisation():
         ax=fig.add_subplot(111)
         # let the plot go to half the height of window
         plt.subplots_adjust(bottom=0.5)
-        
+
         # set the axis domains
         ax.set_xlim(0,100)
         ax.set_ylim(0,100)
@@ -71,7 +71,7 @@ class DuckVisualisation():
         x_f = []
         y_f = []
         for agent in Model.schedule.agents:
-            if isinstance(agent, FemaleDuckAgent):        
+            if isinstance(agent, FemaleDuckAgent):
                 x_f.append(agent.pos[0])
                 y_f.append(agent.pos[1])
             else:
@@ -82,7 +82,7 @@ class DuckVisualisation():
         plot_m.set_xdata(x_m)
         plot_f.set_ydata(y_f)
         plot_f.set_xdata(x_f)
-        
+
         plt.draw()
 
     # take the new slider value
@@ -97,5 +97,5 @@ class DuckVisualisation():
 
 if __name__ == '__main__':
     Model = DuckModel(10, 10, 100, 100)
-    
+
     Vis = DuckVisualisation(Model)
