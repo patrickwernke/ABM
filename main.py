@@ -1,6 +1,7 @@
 from model import DuckModel, FemaleDuckAgent, MaleDuckAgent
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, Button, RadioButtons
+from matplotlib.widgets import TextBox
+from matplotlib.widgets import Slider, Button, RadioButtons, TextBox
 
 # show a simulation of ducks mating
 class DuckVisualisation():
@@ -39,6 +40,10 @@ class DuckVisualisation():
         pause_button = Button(pause_pos, 'Pause/Unpause', color='r')
         pause_button.on_clicked(self.pause_unpause)
 
+        axbox = plt.axes([0.1, 0.05, 0.1, 0.075])
+        text_box = TextBox(axbox, 'num_males', initial="10")
+        text_box.on_submit(self.submit)
+
         # do a single step to show the model at start
         self.step(plot_m, plot_f)
 
@@ -63,6 +68,9 @@ class DuckVisualisation():
             # increment the time
             self.t += 1
 
+    def submit(self, value):
+        self.Model.num_males = int(value)
+        self.Model.create_ducks()
 
     # do 1 simulation step
     def step(self, plot_m, plot_f):
