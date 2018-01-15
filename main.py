@@ -27,10 +27,6 @@ class DuckVisualisation():
         plot_m, plot_f = self.init_sim()
         self.init_stats()
 
-        axbox = plt.axes([0.1, 0.05, 0.1, 0.075])
-        text_box = TextBox(axbox, 'num_males', initial="10")
-        text_box.on_submit(self.submit)
-
         plt.show()
 
         # keep the window open for eternity
@@ -77,6 +73,11 @@ class DuckVisualisation():
         self.reset_button = Button(reset_pos, 'Reset', color='r', hovercolor='orangered')
         self.reset_button.on_clicked(self.reset)
 
+        # textboxje
+        box_pos = plt.axes([0.1, 0.2, 0.1, 0.075])
+        self.text_box = TextBox(box_pos, 'num_males', initial="10")
+        self.text_box.on_submit(self.submit)
+
         # do a single step to show the model at start
         self.sim_step(plot_m, plot_f)
 
@@ -105,10 +106,6 @@ class DuckVisualisation():
 
             # increment the time
             self.t += 1
-
-    def submit(self, value):
-        self.Model.num_males = int(value)
-        self.Model.create_ducks()
 
     # do 1 simulation step
     def sim_step(self, plot_m, plot_f):
@@ -172,6 +169,11 @@ class DuckVisualisation():
     def metric_update(self, label):
         self.stats_metric = label
         self.stats_ax.set_title(self.stats_metric)
+
+    # voor textboxje
+    def submit(self, value):
+        self.Model.num_males = int(value)
+        self.Model.create_ducks()
 
 
 if __name__ == '__main__':
