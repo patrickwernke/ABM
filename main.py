@@ -6,7 +6,6 @@ from matplotlib.widgets import Slider, Button, RadioButtons
 class DuckVisualisation():
     def __init__(self, Model):
         self.Model = Model
-        self.sliders = {}
         self.t = 0
         self.tickrate = 0.01
         self.halt = True
@@ -47,12 +46,21 @@ class DuckVisualisation():
         plot_m, = self.sim_ax.plot([], [], 'o', color='b')
         plot_f, = self.sim_ax.plot([], [], 'o', color='pink')
 
+        # parameters for creating sliders
+        self.slider_height = 0.03
+        self.slider_bot = 0.05
+        self.slider_total = 0
+
         # create a slider for the tickrate
-        tick_pos = plt.axes([0.1, 0.05, 0.3, 0.03])
+        tick_pos = plt.axes(self.get_new_slider_pos())
         # valfmt sets the number of decimal places to be shown
         self.tick_slider = Slider(tick_pos, 'Tickrate', 0.0, 0.1, valinit=self.tickrate, valfmt='%1.5f')
         self.tick_slider.on_changed(self.tick_update)
-        self.sliders['Tickrate'] = self.tick_slider
+
+        slider2_pos = plt.axes(self.get_new_slider_pos())
+        # valfmt sets the number of decimal places to be shown
+        self.slider2 = Slider(slider2_pos, 'Tickrate', 0.0, 0.1, valinit=self.tickrate, valfmt='%1.5f')
+        self.slider2.on_changed(self.tick_update)
 
         # add pause/unpause button
         pause_pos = plt.axes([0.1, 0.0125, 0.1, 0.02])
@@ -121,6 +129,12 @@ class DuckVisualisation():
     def stats_step(self):
         # show the metric as the title
         self.stats_ax.set_title(self.stats_metric)
+
+    # gives the position of a newly added slider
+    def get_new_slider_pos(self):
+        y = self.slider_bot + (self.slider_total * (self.slider_height + self.slider_height/2.0))
+        self.slider_total += 1
+        return [0.1, y, 0.3, self.slider_height]
 
 
     ########################################################################
