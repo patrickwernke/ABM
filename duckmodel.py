@@ -137,7 +137,7 @@ class FemaleDuckAgent(Agent):
 
     def reset(self):
         self.numsex = {}
-        self.numsex[self.mate_id] = 100
+        self.numsex[self.mate_id] = 10
 
 class MaleDuckAgent(Agent):
     def __init__(self, ID, mate_id, aggression, model):
@@ -171,7 +171,9 @@ class MaleDuckAgent(Agent):
         self.move()
 
     def reset(self, aggressive):
-        self.aggression = aggressive
+        self.aggression = aggressive + random.randint(-1, 1)
+        self.aggression = max(self.aggression, 1)
+        self.aggression = min(self.aggression, 20)
 
 if __name__ == '__main__':
     model = DuckModel(3, 40, 40)

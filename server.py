@@ -2,6 +2,10 @@
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
 from duckmodel import DuckModel, FemaleDuckAgent
+from HistModule import HistogramModule
+
+WIDTH = 2
+HEIGHT = 2
 
 def duck_portrayal(duck):
     if isinstance(duck, FemaleDuckAgent):
@@ -20,7 +24,10 @@ def duck_portrayal(duck):
                   'r': r}
     return attributes
 
-grid = CanvasGrid(duck_portrayal, 50, 50, 500, 500)
 
-model_args = {'N':3, 'width':50, 'height':50}
-server = ModularServer(DuckModel, [grid], 'Mating of ducks', model_args)
+    
+grid = CanvasGrid(duck_portrayal, WIDTH, HEIGHT, 500, 500)
+histogram = HistogramModule(list(range(1,21)), 200, 500)
+
+model_args = {'N':2, 'width':WIDTH, 'height':HEIGHT}
+server = ModularServer(DuckModel, [grid, histogram], 'Mating of ducks', model_args)
