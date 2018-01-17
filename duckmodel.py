@@ -125,7 +125,7 @@ class FemaleDuckAgent(Agent):
 
 
     def mating(self,ID):
-        if np.random.random() < succes_mating():
+        if np.random.random() < self.succes_mating():
             self.numsex[ID] = self.numsex.get(ID, 0) + 1
 
     # Create a new generation of ducks
