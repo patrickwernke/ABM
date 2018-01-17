@@ -92,23 +92,24 @@ class FemaleDuckAgent(Agent):
         possible_steps = self.model.grid.get_neighborhood(
             self.pos,
             moore=True,
-            include_center=True,
+            include_center=False,
             radius=2)
 
         # Loop over every possible cell until an empty one has been found
-        for _ in range(len(possible_steps)):
+
+        while possible_steps:
             new_position = random.choice(possible_steps)
 
-            if self.model.grid.is_cell_empty(new_position):
-                break
+            # Content returns a list of objects
+            content = self.model.grid.iter_cell_list_contents(new_position)
+            content = [x for x in content if isinstance(x, FemaleDuckAgent)]
 
-            if not possible_steps:
-                new_position = self.pos
+            if not content:
+                self.model.grid.move_agent(self, new_position)
                 break
 
             possible_steps.remove(new_position)
 
-        self.model.grid.move_agent(self, new_position)
 
     def step(self):
         self.move()
