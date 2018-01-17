@@ -52,8 +52,15 @@ class DuckModel(Model):
         for agent in self.schedule.agents:
             if isinstance(agent, FemaleDuckAgent):
                 if random.random() < 0.10:
-                    agent.create_new()
+                    maleid = agent.get_id_newduck()
+                    agression = self.get_duck_by_id(maleid).agression
+                    partner = agent.mate.reset(agression)
+                    print ("update to", agression)
 
+        # reset all female ducks for next season.
+        for agent in self.schedule.agents:
+            if isinstance(agent, FemaleDuckAgent):
+                agent.reset()
 
 class DuckAgent(Agent):
 
@@ -101,18 +108,16 @@ class FemaleDuckAgent(Agent):
             self.numsex[id] = 1
 
     # Create a new generation of ducks
-    def create_new(self):
+    def get_id_newduck(self):
 
-        aggresive = np.random.choice(list(self.numsex.keys()),
+        duck_id = np.random.choice(list(self.numsex.keys()),
                     p = np.array(list(self.numsex.values()))/sum(self.numsex.values()) )
-        print (self.mate.agression)
-        self.mate.reset(aggresive)
-        print ("resetted mate", self.mate_id)
-        print (self.mate.agression)
+
+        return duck_id
 
     def reset(self):
         self.numsex = {}
-        self.numsex[mate_id] = 100
+        self.numsex[self.mate_id] = 100
 
 class MaleDuckAgent(Agent):
     def __init__(self, ID, mate_id, agression, model):
