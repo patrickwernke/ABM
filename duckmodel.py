@@ -51,7 +51,7 @@ class DuckModel(Model):
     def endseason(self):
         for agent in self.schedule.agents:
             if isinstance(agent, FemaleDuckAgent):
-                if random.random() < 0.10:
+                if random.random() < 0.50:
                     maleid = agent.get_id_newduck()
                     aggression = self.get_duck_by_id(maleid).aggression
                     partner = agent.mate.reset(aggression)
@@ -94,22 +94,46 @@ class FemaleDuckAgent(Agent):
             moore=True,
             include_center=True,
             radius=2)
-        new_position = random.choice(possible_steps)
+
+        # Loop over every possible cell until an empty one has been found
+        for _ in range(len(possible_steps)):
+            new_position = random.choice(possible_steps)
+
+            if self.model.grid.is_cell_empty(new_position):
+                break
+
+            if not possible_steps:
+                new_position = self.pos
+                break
+
+            possible_steps.remove(new_position)
+
         self.model.grid.move_agent(self, new_position)
 
     def step(self):
         self.move()
 
-    def mating(id):
-        # Save the male duck id or make new one in dictionary
-        if self.numsex[id]:
-            self.numsex[id] += 1
-        else:
-            self.numsex[id] = 1
+    def succes_mating(self):
+        base_chance = 0.5
+        max_distance = 20
+
+        # Succes chance linearly increases if the male is further away until some threshold
+        distance_ownmale = np.linalg.norm(np.array(self.mate.pos) - np.array(self.pos))
+        variable_chance = (1-base_chance)*(min(1, distance_ownmale/max_distance))
+
+        return base_chance + variable_chance
+
+    def mating(self, id):
+        # Check if mating will be succesfull.
+        if np.random.random() < succes_mating():
+            # Save the male duck id or make new one in dictionary.
+            if self.numsex[id]:
+                self.numsex[id] += 1
+            else:
+                self.numsex[id] = 1
 
     # Create a new generation of ducks
     def get_id_newduck(self):
-
         duck_id = np.random.choice(list(self.numsex.keys()),
                     p = np.array(list(self.numsex.values()))/sum(self.numsex.values()) )
 
