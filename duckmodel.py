@@ -125,8 +125,13 @@ class MaleDuckAgent(Agent):
         self.ID = ID
         self.mate_id = mate_id
         self.aggression = aggression
-
+    
     def move(self):
+    
+        random_number = abs(int(np.random.normal(0, self.aggression)))
+        
+        
+    
         mate_pos = self.model.get_duck_by_id(self.mate_id).pos
         self.model.grid.move_agent(self, mate_pos)
 
