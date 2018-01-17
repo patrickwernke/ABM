@@ -6,14 +6,18 @@ from duckmodel import DuckModel, FemaleDuckAgent
 def duck_portrayal(duck):
     if isinstance(duck, FemaleDuckAgent):
         c = 'red'
+        r = 1
+        layer=0
     else:
         c = 'blue'
+        r = 0.5
+        layer=1
 
     attributes = {'Shape': 'circle',
                   'Filled': 'true',
-                  'Layer': 0,
+                  'Layer': layer,
                   'Color': c,
-                  'r': 0.5}
+                  'r': r}
     return attributes
 
 grid = CanvasGrid(duck_portrayal, 50, 50, 500, 500)
