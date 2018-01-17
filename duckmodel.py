@@ -100,12 +100,9 @@ class FemaleDuckAgent(Agent):
     def step(self):
         self.move()
 
-    def mating(id):
+    def mating(self, ID):
         # Save the male duck id or make new one in dictionary
-        if self.numsex[id]:
-            self.numsex[id] += 1
-        else:
-            self.numsex[id] = 1
+        self.numsex[ID] = self.numsex.get(ID, 0) + 1
 
     # Create a new generation of ducks
     def get_id_newduck(self):
@@ -125,23 +122,27 @@ class MaleDuckAgent(Agent):
         self.ID = ID
         self.mate_id = mate_id
         self.aggression = aggression
-    
-    def move(self):
-    
-        random_number = abs(int(np.random.normal(0, self.aggression)))
-        
-        
-    
-        mate_pos = self.model.get_duck_by_id(self.mate_id).pos
-        self.model.grid.move_agent(self, mate_pos)
 
-        possible_steps = self.model.grid.get_neighborhood(
-            self.pos,
-            moore=True,
-            include_center=True,
-            radius=2)
-        new_position = random.choice(possible_steps)
-        self.model.grid.move_agent(self, new_position)
+    def move(self):
+
+        random_number = abs(int(np.random.normal(0, self.aggression)))
+        mate_pos = self.model.get_duck_by_id(self.mate_id).pos
+        neighbors = self.model.grid.get_neighbors(mate_pos, True, include_center=False, radius=random_number)
+        neighbors = [duck for duck in neighbors if isinstance(duck, FemaleDuckAgent)]
+
+        if neighbors:
+            victem = np.random.choice(neighbors)
+            next_position = victem.pos
+            self.model.grid.move_agent(self, next_position)
+            victem.mating(self.ID)
+        else:
+            possible_steps = self.model.grid.get_neighborhood(
+                mate_pos,
+                moore=True,
+                include_center=True,
+                radius=random_number)
+            next_position = random.choice(possible_steps)
+            self.model.grid.move_agent(self, next_position)
 
     def step(self):
         self.move()
