@@ -5,12 +5,9 @@ import random
 import numpy as np
 from mesa.datacollection import DataCollector
 
-def gini_aggression(model):
-    x = sorted([x.aggression for x in model.schedule.agents if isinstance(x, MaleDuckAgent)])
-    N = len(x)
-    B = sum( xi * (N-i) for i,xi in enumerate(x) ) / (N*sum(x))
-    return (1 + (1/N) - 2*B)
-
+def std(model):
+    x = [x.aggression for x in model.schedule.agents if isinstance(x, MaleDuckAgent)]
+    return np.std(x)
 
 class DuckModel(Model):
     """A model with some number of agents."""
@@ -45,7 +42,7 @@ class DuckModel(Model):
 
         # Create a object taht collects the gini coefficient every timestep.
         self.datacollector = DataCollector(
-            model_reporters={"aggression": gini_aggression}
+            model_reporters={"aggression": std}
             )
 
     # Get the duck object given its ID.
