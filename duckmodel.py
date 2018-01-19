@@ -93,7 +93,7 @@ class FemaleDuckAgent(Agent):
     def step(self):
         possible_steps = self.model.grid.get_neighborhood(
             self.pos,
-            moore=True,
+            moore=False,
             include_center=False,
             radius=2)
 
@@ -151,7 +151,7 @@ class MaleDuckAgent(Agent):
     def step(self):
         random_number = abs(int(np.random.normal(0, self.aggression)))
         mate_pos = self.model.get_duck_by_id(self.mate_id).pos
-        neighbors = self.model.grid.get_neighbors(mate_pos, True, include_center=False, radius=random_number)
+        neighbors = self.model.grid.get_neighbors(mate_pos, moore=False, include_center=False, radius=random_number)
         neighbors = [duck for duck in neighbors if isinstance(duck, FemaleDuckAgent)]
 
         if neighbors:
@@ -162,7 +162,7 @@ class MaleDuckAgent(Agent):
         else:
             possible_steps = self.model.grid.get_neighborhood(
                 mate_pos,
-                moore=True,
+                moore=False,
                 include_center=True,
                 radius=random_number)
             next_position = random.choice(possible_steps)
