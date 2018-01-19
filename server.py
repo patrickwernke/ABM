@@ -26,19 +26,20 @@ def duck_portrayal(duck):
                   'r': r}
     return attributes
 
-chart = ChartModule([{"Label": "aggression",
-                      "Color": "Black"}],
-                    data_collector_name='datacollector')
-
 # Sliders
+number_agent = UserSettableParameter("slider", "Number of agents", 20, 1, 100, 1)
 season_length = UserSettableParameter("slider", "length of season", 20, 10, 50, 1)
 mutation = UserSettableParameter("slider", "Mutation chance", 0.1, 0, 1, 0.05)
 partner_egg = UserSettableParameter("slider", "# partner mating", 20, 10, 50, 1)
+base_succes_mate = UserSettableParameter("slider", "Base succes chance of mating", 0.25, 0, 1, 0.05)
 
-
-grid = CanvasGrid(duck_portrayal, WIDTH, HEIGHT, 500, 500)
+# Graphs
 histogram = HistogramModule(list(range(1,21)), 200, 500)
+chart = ChartModule([{"Label": "aggression",
+                      "Color": "Black"}],
+                    data_collector_name='datacollector')
+grid = CanvasGrid(duck_portrayal, WIDTH, HEIGHT, 500, 500)
 
-model_args = {'N':40, 'width':WIDTH, 'height':HEIGHT, "season_length": season_length,
-                "mutation": mutation, "partner_egg": partner_egg}
+model_args = {'N':number_agent, 'width':WIDTH, 'height':HEIGHT, "season_length": season_length,
+                "mutation": mutation, "partner_egg": partner_egg, "base_succes_mate": base_succes_mate}
 server = ModularServer(DuckModel, [grid, histogram, chart], 'Mating of ducks', model_args)
