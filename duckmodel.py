@@ -4,26 +4,35 @@ from mesa import Agent, Model
 from mesa.time import RandomActivation
 import random
 import numpy as np
+from mesa.datacollection import DataCollector
+
+def gini_aggression(model):
+    x = sorted([x.aggression for x in model.schedule.agents if isinstance(x, MaleDuckAgent)])
+    N = len(x)
+    B = sum( xi * (N-i) for i,xi in enumerate(x) ) / (N*sum(x))
+    return (1 + (1/N) - 2*B)
+
 
 class DuckModel(Model):
     """A model with some number of agents."""
-    def __init__(self, N, width, height):
+    def __init__(self, N, width, height, season_length, mutation, partner_egg):
         self.running=True
         self.ID = 0
         self.num_agents = N
         self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
         self.current_step = 0
+        self.season_length = season_length
 
         self.duckdic={}
 
         # Create agents
         for _ in range(self.num_agents):
-            m = MaleDuckAgent(self.ID, self.ID+1, random.randint(2, 10), self)
+            m = MaleDuckAgent(self.ID, self.ID+1, 5, mutation, self)
             self.duckdic[self.ID] = m
             self.ID += 1
 
-            f = FemaleDuckAgent(self.ID, self.ID-1, m, self)
+            f = FemaleDuckAgent(self.ID, self.ID-1, m, partner_egg, self)
             self.duckdic[self.ID] = f
             self.ID += 1
 
@@ -36,14 +45,19 @@ class DuckModel(Model):
             self.grid.place_agent(f, (x, y))
             self.grid.place_agent(m, (x, y))
 
+        self.datacollector = DataCollector(
+            model_reporters={"aggression": gini_aggression}
+            )
+
     def get_duck_by_id(self, ID):
         return self.duckdic[ID]
 
     def step(self):
+        self.datacollector.collect(self)
         self.current_step += 1
 
         # After 10 timesteps, make new ducks
-        if self.current_step % 10 == 0:
+        if self.current_step % self.season_length == 0:
             self.endseason()
 
         self.schedule.step()
@@ -55,7 +69,7 @@ class DuckModel(Model):
                     maleid = agent.get_id_newduck()
                     aggression = self.get_duck_by_id(maleid).aggression
                     partner = agent.mate.reset(aggression)
-                    print ("update to", aggression)
+                    #print ("update to", aggression)
 
         # reset all female ducks for next season.
         for agent in self.schedule.agents:
@@ -80,13 +94,14 @@ class DuckAgent(Agent):
         self.move()
 
 class FemaleDuckAgent(Agent):
-    def __init__(self, ID, mate_id,mate, model):
+    def __init__(self, ID, mate_id,mate, partner_egg, model):
         super().__init__(ID, model)
         self.ID = ID
         self.mate_id = mate_id
         self.mate = mate
         self.numsex = {}
-        self.numsex[mate_id] = 100
+        self.partner_egg = partner_egg
+        self.numsex[mate_id] = partner_egg
 
     def move(self):
         possible_steps = self.model.grid.get_neighborhood(
@@ -115,7 +130,7 @@ class FemaleDuckAgent(Agent):
         self.move()
 
     def succes_mating(self):
-        base_chance = 0.5
+        base_chance = 0.25
         max_distance = 20
 
         # Succes chance linearly increases if the male is further away until some threshold
@@ -138,17 +153,17 @@ class FemaleDuckAgent(Agent):
 
     def reset(self):
         self.numsex = {}
-        self.numsex[self.mate_id] = 10
+        self.numsex[self.mate_id] = self.partner_egg
 
 class MaleDuckAgent(Agent):
-    def __init__(self, ID, mate_id, aggression, model):
+    def __init__(self, ID, mate_id, aggression, mutation, model):
         super().__init__(ID, model)
         self.ID = ID
         self.mate_id = mate_id
         self.aggression = aggression
+        self.mutation = mutation
 
     def move(self):
-
         random_number = abs(int(np.random.normal(0, self.aggression)))
         mate_pos = self.model.get_duck_by_id(self.mate_id).pos
         neighbors = self.model.grid.get_neighbors(mate_pos, True, include_center=False, radius=random_number)
@@ -172,7 +187,10 @@ class MaleDuckAgent(Agent):
         self.move()
 
     def reset(self, aggressive):
-        self.aggression = aggressive + random.randint(-1, 1)
+        if np.random.random() < self.mutation:
+            self.aggression = aggressive + np.random.choice([-1,1])
+        else:
+            self.aggression = aggressive
         self.aggression = max(self.aggression, 1)
         self.aggression = min(self.aggression, 20)
 
