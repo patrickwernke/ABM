@@ -35,11 +35,8 @@ base_succes_mate = UserSettableParameter("slider", "Base succes chance of mating
 
 # Graphs
 histogram = HistogramModule(list(range(1,21)), 200, 500)
-chart = ChartModule([{"Label": "aggression",
-                      "Color": "Black"}],
-                    data_collector_name='datacollector')
 grid = CanvasGrid(duck_portrayal, WIDTH, HEIGHT, 500, 500)
 
 model_args = {'N':number_agent, 'width':WIDTH, 'height':HEIGHT, "season_length": season_length,
                 "mutation": mutation, "partner_egg": partner_egg, "base_succes_mate": base_succes_mate}
-server = ModularServer(DuckModel, [grid, histogram, chart], 'Mating of ducks', model_args)
+server = ModularServer(DuckModel, [grid, histogram], 'Mating of ducks', model_args)

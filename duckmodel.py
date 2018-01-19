@@ -42,7 +42,8 @@ class DuckModel(Model):
 
         # Create a object taht collects the gini coefficient every timestep.
         self.datacollector = DataCollector(
-            model_reporters={"aggression": std}
+            model_reporters={"Standard deviation of aggression": std},
+            agent_reporters={"Data": lambda duck: duck.data}
             )
 
     # Get the duck object given its ID.
@@ -85,6 +86,9 @@ class FemaleDuckAgent(Agent):
         self.partner_egg = partner_egg
         self.numsex[mate_id] = partner_egg
         self.base_succes = base_succes_mate
+        
+        # because mesa does not actually work
+        self.data = partner_egg
 
     # Move the female duck into a random position within a maximum radius.
     def step(self):
@@ -123,6 +127,8 @@ class FemaleDuckAgent(Agent):
     def mating(self,ID):
         if np.random.random() < self.succes_mating():
             self.numsex[ID] = self.numsex.get(ID, 0) + 1
+            # represents number of succesful sexual encounters
+            self.data+=1
 
     # Create a new generation of ducks.
     def get_id_newduck(self):
@@ -143,6 +149,9 @@ class MaleDuckAgent(Agent):
         self.mate_id = mate_id
         self.aggression = aggression
         self.mutation = mutation
+        
+        # data gathering
+        self.data=aggression
 
     # Make a step towards the female and mate if they are in range.
     def step(self):
@@ -174,6 +183,8 @@ class MaleDuckAgent(Agent):
 
         self.aggression = max(self.aggression, 1)
         self.aggression = min(self.aggression, 20)
+        # data gathering
+        self.data = self.aggression
 
 if __name__ == '__main__':
     model = DuckModel(3, 40, 40)
