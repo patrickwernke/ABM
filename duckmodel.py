@@ -47,10 +47,10 @@ class DuckModel(Model):
             )
 
     def get_male_ducks(self):
-        return [duck for duck in self.scheduler.agents if isinstance(duck, MaleDuckAgent)]
+        return [duck for duck in self.schedule.agents if isinstance(duck, MaleDuckAgent)]
     
     def get_female_ducks(self):
-        return [duck for duck in self.scheduler.agents if isinstance(duck, FemaleDuckAgent)]
+        return [duck for duck in self.schedule.agents if isinstance(duck, FemaleDuckAgent)]
             
     # Get the duck object given its ID.
     def get_duck_by_id(self, ID):
@@ -85,28 +85,16 @@ class DuckModel(Model):
             father = self.get_duck_by_id(mother.get_id_newduck())
             # save the male's traits
             child_traits = (father.aggression,)
+            replace.append(child_traits)
 
         # replace the male mates in the kill list with new ones
-        for female in kill:
+        for i in range(len(kill)):
+            female = kill[i]
+            mate_traits = replace[i]
             # set the new mates traits
-            female.mate.reset(traits)
+            female.mate.reset(mate_traits)
             # reset the females sexual encounters
             female.reset()
-
-
-        # # go through all female ducks
-        # for agent in self.schedule.agents:
-        #     if isinstance(agent, FemaleDuckAgent):
-        #         if random.random() < 0.50:
-        #             # Randomly select one of the genes out of all the mates.
-        #             maleid = agent.get_id_newduck()
-        #             aggression = self.get_duck_by_id(maleid).aggression
-        #             partner = agent.mate.reset(aggression)
-        
-        # # Reset all female ducks for next season.
-        # for agent in self.schedule.agents:
-        #     if isinstance(agent, FemaleDuckAgent):
-        #         agent.reset()
 
 class FemaleDuckAgent(Agent):
     def __init__(self, ID, mate_id,mate, partner_egg, base_succes_mate, model):
@@ -195,10 +183,10 @@ class MaleDuckAgent(Agent):
         neighbors = [duck for duck in neighbors if isinstance(duck, FemaleDuckAgent)]
 
         if neighbors:
-            victem = np.random.choice(neighbors)
-            next_position = victem.pos
+            victim = np.random.choice(neighbors)
+            next_position = victim.pos
             self.model.grid.move_agent(self, next_position)
-            victem.mating(self.ID)
+            victim.mating(self.ID)
         else:
             possible_steps = self.model.grid.get_neighborhood(
                 mate_pos,
@@ -213,9 +201,9 @@ class MaleDuckAgent(Agent):
         # traits only consist of aggression
         aggression = traits[0]
         if np.random.random() < self.mutation:
-            self.aggression = aggressive + np.random.choice([-1,1])
+            self.aggression = aggression + np.random.choice([-1,1])
         else:
-            self.aggression = aggressive
+            self.aggression = aggression
 
         self.aggression = max(self.aggression, 1)
         self.aggression = min(self.aggression, 20)
