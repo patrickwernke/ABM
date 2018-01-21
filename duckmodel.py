@@ -46,6 +46,12 @@ class DuckModel(Model):
             agent_reporters={"Data": lambda duck: duck.data}
             )
 
+    def get_male_ducks(self):
+        return [duck for duck in self.scheduler.agents if isinstance(duck, MaleDuckAgent)]
+    
+    def get_female_ducks(self):
+        return [duck for duck in self.scheduler.agents if isinstance(duck, FemaleDuckAgent)]
+            
     # Get the duck object given its ID.
     def get_duck_by_id(self, ID):
         return self.duckdic[ID]

@@ -14,10 +14,10 @@ def get_data(model):
     
     aggression = data.values[::2]
     size = aggression.shape[0]
-    aggression = aggression.reshape((model.num_agents, int(size/model.num_agents)))
+    aggression = aggression.reshape((int(size/model.num_agents), model.num_agents))
 
     female_sex = data.values[1::2]
-    female_sex = female_sex.reshape((model.num_agents, int(size/model.num_agents)))
+    female_sex = female_sex.reshape((int(size/model.num_agents), model.num_agents))
     
     return stds, aggression, female_sex
     
@@ -29,13 +29,13 @@ def get_standard_deviations(model):
 def get_female_sex(model):
     female_sex = data.values[1::2]
     size = female_sex.shape[0]
-    female_sex = female_sex.reshape((model.num_agents, int(size/model.num_agents)))
+    female_sex = female_sex.reshape((int(size/model.num_agents), model.num_agents))
     return female_sex
 
 def get_male_aggression(model):
     aggression = data.values[::2]
     size = aggression.shape[0]
-    aggression = aggression.reshape((model.num_agents, int(size/model.num_agents)))
+    aggression = aggression.reshape((int(size/model.num_agents), model.num_agents))
     return aggression
     
     
@@ -45,10 +45,12 @@ if __name__ == '__main__':
     for _ in range(200):
         m.step()
     std, agg, sex = get_data(m)
-    print(agg)
+    for a in agg:
+        print(a)
     plt.plot(std)
     plt.show()
-    plt.plot(agg[2,:])
+    plt.plot(agg[:,2])
     plt.show()
-    plt.plot(sex[2,:])
+    plt.plot(sex[:,2])
     plt.show()
+    
