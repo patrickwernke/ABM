@@ -21,6 +21,9 @@ class DuckModel(Model):
         self.season_length = season_length
         self.duckdic={}
 
+        self.male_ducks = []
+        self.female_ducks = []
+        
         # Create agents
         for _ in range(self.num_agents):
             m = MaleDuckAgent(self.ID, self.ID+1, 5, mutation, self)
@@ -34,23 +37,26 @@ class DuckModel(Model):
             self.schedule.add(f)
             self.schedule.add(m)
 
+            self.male_ducks.append(m)
+            self.female_ducks.append(f)
+            
             # Add the agent to a random grid cell
             x = random.randrange(self.grid.width)
             y = random.randrange(self.grid.height)
             self.grid.place_agent(f, (x, y))
             self.grid.place_agent(m, (x, y))
 
-        # Create a object taht collects the gini coefficient every timestep.
+        # Create an object that collects the data every time step.
         self.datacollector = DataCollector(
             model_reporters={"Standard deviation of aggression": std},
             agent_reporters={"Data": lambda duck: duck.data}
             )
 
     def get_male_ducks(self):
-        return [duck for duck in self.scheduler.agents if isinstance(duck, MaleDuckAgent)]
+        return self.male_ducks
     
     def get_female_ducks(self):
-        return [duck for duck in self.scheduler.agents if isinstance(duck, FemaleDuckAgent)]
+        return self.female_ducks
             
     # Get the duck object given its ID.
     def get_duck_by_id(self, ID):
