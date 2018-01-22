@@ -23,7 +23,7 @@ class DuckModel(Model):
 
         self.male_ducks = []
         self.female_ducks = []
-        
+
         # Create agents
         for _ in range(self.num_agents):
             m = MaleDuckAgent(self.ID, self.ID+1, 5, mutation, self)
@@ -39,7 +39,7 @@ class DuckModel(Model):
 
             self.male_ducks.append(m)
             self.female_ducks.append(f)
-            
+
             # Add the agent to a random grid cell
             x = random.randrange(self.grid.width)
             y = random.randrange(self.grid.height)
@@ -54,10 +54,10 @@ class DuckModel(Model):
 
     def get_male_ducks(self):
         return self.male_ducks
-    
+
     def get_female_ducks(self):
         return self.female_ducks
-            
+
     # Get the duck object given its ID.
     def get_duck_by_id(self, ID):
         return self.duckdic[ID]
@@ -112,7 +112,7 @@ class FemaleDuckAgent(Agent):
         self.partner_egg = partner_egg
         self.numsex[mate_id] = partner_egg
         self.base_succes = base_succes_mate
-        
+
         # because mesa does not actually work
         self.data = partner_egg
 
@@ -177,7 +177,7 @@ class MaleDuckAgent(Agent):
         self.mate_id = mate_id
         self.aggression = aggression
         self.mutation = mutation
-        
+
         # data gathering
         self.data=aggression
 
@@ -217,6 +217,10 @@ class MaleDuckAgent(Agent):
         self.data = self.aggression
 
 if __name__ == '__main__':
-    model = DuckModel(3, 40, 40)
-    for time in range(20):
+    import time
+    start = time.time()
+    model = DuckModel(30, 40, 40)
+    for _ in range(1000):
         model.step()
+
+    print (time.time() - start)
