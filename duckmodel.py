@@ -145,6 +145,9 @@ class FemaleDuckAgent(Agent):
         # Success chance linearly increases if the male is further away until some threshold.
         distance_ownmale = sqrt((self.mate.pos[0]-self.pos[0])**2 + (self.mate.pos[1]-self.pos[1])**2)
         variable_chance = (1 - self.base_succes) * (min(1, distance_ownmale / max_distance))
+
+        # looking at aggression instead of distance
+        variable_chance = (1 - self.base_succes) * (min(1, self.mate.aggression / max_distance))
         return self.base_succes + variable_chance
 
     # Add one mating to the possible list of mates.
@@ -213,7 +216,7 @@ class MaleDuckAgent(Agent):
 if __name__ == '__main__':
     import time
     start = time.time()
-    model = DuckModel(30, 1000, 1000)
+    model = DuckModel(500, 60, 60)
     for _ in range(1000):
         model.step()
 
