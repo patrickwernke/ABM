@@ -15,26 +15,29 @@ class DuckModel(Model):
     """A model with some number of agents."""
     def __init__(self, N, width, height, season_length=20, mutation=0.3, partner_egg=20, base_succes_mate=0.2):
         self.running=True
-        self.ID = 0
         self.num_agents = N
         self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
         self.current_step = 0
         self.season_length = season_length
         self.duckdic={}
+        self.mutation = mutation
+        self.partner_egg = partner_egg
+        self.base_succes_mate = base_succes_mate
 
         self.male_ducks = []
         self.female_ducks = []
 
         # Create agents
+        ID = 0
         for _ in range(self.num_agents):
-            m = MaleDuckAgent(self.ID, self.ID+1, 5, mutation, self)
-            self.duckdic[self.ID] = m
-            self.ID += 1
+            m = MaleDuckAgent(ID, ID+1, 5, mutation, self)
+            self.duckdic[ID] = m
+            ID += 1
 
-            f = FemaleDuckAgent(self.ID, self.ID-1, m, partner_egg, base_succes_mate, self)
-            self.duckdic[self.ID] = f
-            self.ID += 1
+            f = FemaleDuckAgent(ID, ID-1, m, partner_egg, base_succes_mate, self)
+            self.duckdic[ID] = f
+            ID += 1
 
             self.schedule.add(f)
             self.schedule.add(m)
