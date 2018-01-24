@@ -15,14 +15,16 @@ class DuckModel(Model):
     """A model with some number of agents."""
     def __init__(self, N, width, height, season_length=20, mutation=0.3, partner_egg=20, base_succes_mate=0.2):
         self.running=True
-        self.num_agents = N
+        width=int(width)
+        height=int(height)
+        self.num_agents = int(N)
         self.grid = MultiGrid(width, height, True)
         self.schedule = RandomActivation(self)
         self.current_step = 0
-        self.season_length = season_length
+        self.season_length = int(season_length)
         self.duckdic={}
         self.mutation = mutation
-        self.partner_egg = partner_egg
+        self.partner_egg = int(partner_egg)
         self.base_succes_mate = base_succes_mate
 
         self.male_ducks = []
