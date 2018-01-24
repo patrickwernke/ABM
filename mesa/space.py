@@ -89,8 +89,8 @@ class Grid:
             self.grid.append(col)
 
         # Add all cells to the empties list.
-        self.empties = list(itertools.product(
-                            *(range(self.width), range(self.height))))
+        # self.empties = list(itertools.product(
+                            # *(range(self.width), range(self.height))))
 
     @staticmethod
     def default_val():
@@ -420,15 +420,15 @@ class MultiGrid(Grid):
         """ Place the agent at the correct location. """
         x, y = pos
         self.grid[x][y].add(agent)
-        if pos in self.empties:
-            self.empties.remove(pos)
+        # if pos in self.empties:
+        #     self.empties.remove(pos)
 
     def _remove_agent(self, pos, agent):
         """ Remove the agent from the given location. """
         x, y = pos
         self.grid[x][y].remove(agent)
-        if self.is_cell_empty(pos):
-            self.empties.append(pos)
+        # if self.is_cell_empty(pos):
+        #     self.empties.append(pos)
 
     @accept_tuple_argument
     def iter_cell_list_contents(self, cell_list):

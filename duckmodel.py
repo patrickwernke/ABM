@@ -213,7 +213,7 @@ class MaleDuckAgent(Agent):
 if __name__ == '__main__':
     import time
     start = time.time()
-    model = DuckModel(30, 40, 40)
+    model = DuckModel(30, 1000, 1000)
     for _ in range(1000):
         model.step()
 
