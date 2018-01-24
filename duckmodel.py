@@ -3,7 +3,9 @@ from mesa import Agent, Model
 from mesa.time import RandomActivation
 import random
 import numpy as np
+from math import sqrt
 from mesa.datacollection import DataCollector
+import moveducks
 
 def std(model):
     x = [x.aggression for x in model.schedule.agents if isinstance(x, MaleDuckAgent)]
@@ -20,6 +22,9 @@ class DuckModel(Model):
         self.season_length = season_length
         self.duckdic={}
 
+        self.male_ducks = []
+        self.female_ducks = []
+
         # Create agents
         ID = 0
         for _ in range(self.num_agents):
@@ -34,34 +39,37 @@ class DuckModel(Model):
             self.schedule.add(f)
             self.schedule.add(m)
 
+            self.male_ducks.append(m)
+            self.female_ducks.append(f)
+
             # Add the agent to a random grid cell
             x = random.randrange(self.grid.width)
             y = random.randrange(self.grid.height)
             self.grid.place_agent(f, (x, y))
             self.grid.place_agent(m, (x, y))
 
-        # Create a object taht collects the gini coefficient every timestep.
+        # Create an object that collects the data every time step.
         self.datacollector = DataCollector(
             model_reporters={"Standard deviation of aggression": std},
             agent_reporters={"Data": lambda duck: duck.data}
             )
 
     def get_male_ducks(self):
-        return [duck for duck in self.schedule.agents if isinstance(duck, MaleDuckAgent)]
-    
+        return self.male_ducks
+
     def get_female_ducks(self):
-        return [duck for duck in self.schedule.agents if isinstance(duck, FemaleDuckAgent)]
-            
+        return self.female_ducks
+
     # Get the duck object given its ID.
     def get_duck_by_id(self, ID):
         return self.duckdic[ID]
 
-    # Make one timestep in the simulation.
+    # Make one time step in the simulation.
     def step(self):
         self.datacollector.collect(self)
         self.current_step += 1
 
-        # After an x amount of timesteps, make a new season
+        # After an x amount of time steps, make a new season
         if self.current_step % self.season_length == 0:
             self.endseason()
 
@@ -72,14 +80,14 @@ class DuckModel(Model):
         # number of new ducklings
         total_new = np.random.binomial(self.num_agents, .5)
 
-        # get all females in population and get a random sample to kill
+        # get all females in population and get a random sample whose mates to kill
         females = self.get_female_ducks()
         kill = random.sample(females, total_new)
         replace = []
 
         # get random females staged for reproduction
         for i in range(0, total_new):
-            # the female and male that reproduce (randomly chosen from all population)
+            # the female and male that reproduce (randomly chosen from whole population)
             mother = random.choice(females)
             # the male that reproduces (randomly chosen from the mother's encounters)
             father = self.get_duck_by_id(mother.get_id_newduck())
@@ -88,9 +96,7 @@ class DuckModel(Model):
             replace.append(child_traits)
 
         # replace the male mates in the kill list with new ones
-        for i in range(len(kill)):
-            female = kill[i]
-            mate_traits = replace[i]
+        for female, mate_traits in zip(kill, replace):
             # set the new mates traits
             female.mate.reset(mate_traits)
             # reset the females sexual encounters
@@ -106,17 +112,13 @@ class FemaleDuckAgent(Agent):
         self.partner_egg = partner_egg
         self.numsex[mate_id] = partner_egg
         self.base_succes = base_succes_mate
-        
+
         # because mesa does not actually work
         self.data = partner_egg
 
     # Move the female duck into a random position within a maximum radius.
     def step(self):
-        possible_steps = self.model.grid.get_neighborhood(
-            self.pos,
-            moore=False,
-            include_center=False,
-            radius=2)
+        possible_steps = list(moveducks.von_neumann_neighborhood(self.model, self.pos, 2))
 
         # Loop over every possible cell until a cell with no female has been found.
         # If no cell is found, stay at current cell
@@ -133,21 +135,20 @@ class FemaleDuckAgent(Agent):
 
             possible_steps.remove(new_position)
 
-    # Calculate the chance of a succesfull mating.
+    # Calculate the chance of successful mating.
     def succes_mating(self):
         max_distance = 20
 
-        # Succes chance linearly increases if the male is further away until some threshold.
-        distance_ownmale = np.linalg.norm(np.array(self.mate.pos) - np.array(self.pos))
+        # Success chance linearly increases if the male is further away until some threshold.
+        distance_ownmale = sqrt((self.mate.pos[0]-self.pos[0])**2 + (self.mate.pos[1]-self.pos[1])**2)
         variable_chance = (1 - self.base_succes) * (min(1, distance_ownmale / max_distance))
-
         return self.base_succes + variable_chance
 
     # Add one mating to the possible list of mates.
     def mating(self,ID):
         if np.random.random() < self.succes_mating():
             self.numsex[ID] = self.numsex.get(ID, 0) + 1
-            # represents number of succesful sexual encounters
+            # represents number of successful sexual encounters
             self.data+=1
 
     # choose a male from all sexual encounters in this season
@@ -171,7 +172,7 @@ class MaleDuckAgent(Agent):
         self.mate_id = mate_id
         self.aggression = aggression
         self.mutation = mutation
-        
+
         # data gathering
         self.data=aggression
 
@@ -179,21 +180,17 @@ class MaleDuckAgent(Agent):
     def step(self):
         random_number = abs(int(np.random.normal(0, self.aggression)))
         mate_pos = self.model.get_duck_by_id(self.mate_id).pos
-        neighbors = self.model.grid.get_neighbors(mate_pos, moore=False, include_center=False, radius=random_number)
-        neighbors = [duck for duck in neighbors if isinstance(duck, FemaleDuckAgent)]
-
-        if neighbors:
-            victim = np.random.choice(neighbors)
+        
+        neighborhood = moveducks.von_neumann_neighborhood(self.model, mate_pos, random_number)
+        victims = moveducks.get_neighbors(self.model, neighborhood)
+        victims = [x for x in victims if isinstance(x, FemaleDuckAgent)]
+        if victims:
+            victim = np.random.choice(victims)
             next_position = victim.pos
             self.model.grid.move_agent(self, next_position)
             victim.mating(self.ID)
         else:
-            possible_steps = self.model.grid.get_neighborhood(
-                mate_pos,
-                moore=False,
-                include_center=True,
-                radius=random_number)
-            next_position = random.choice(possible_steps)
+            next_position = random.choice(neighborhood)
             self.model.grid.move_agent(self, next_position)
 
     # Reset the traits of the duck and add a mutation.
@@ -211,6 +208,10 @@ class MaleDuckAgent(Agent):
         self.data = self.aggression
 
 if __name__ == '__main__':
-    model = DuckModel(3, 40, 40)
-    for time in range(20):
+    import time
+    start = time.time()
+    model = DuckModel(30, 40, 40)
+    for _ in range(1000):
         model.step()
+
+    print (time.time() - start)
