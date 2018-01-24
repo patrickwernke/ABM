@@ -21,6 +21,9 @@ class DuckModel(Model):
         self.current_step = 0
         self.season_length = season_length
         self.duckdic={}
+        self.mutation = mutation
+        self.partner_egg = partner_egg
+        self.base_succes_mate = base_succes_mate
 
         self.male_ducks = []
         self.female_ducks = []
