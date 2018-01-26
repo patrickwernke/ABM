@@ -7,6 +7,7 @@ from numpy import mean
 import numpy as np
 from tqdm import tqdm
 import pickle
+import matplotlib.pyplot as plt
 
 def run_duck_get_stds(values, steps):
     result = np.zeros(values.shape[0])
@@ -32,8 +33,26 @@ def make_results(name):
 # get results from data/name file and analyse them
 def analyze_results(name):
     Si = pickle.load( open("data/" + name, "rb" ) )
-    print(Si)
-    # TODO analysis
+    # print(Si)
+
+    var_names = ['N', 'Season length', 'Mutation', 'Partner egg', 'Base succes mate']
+
+    fig = plt.figure(figsize=(12, 6))
+    ax1 = fig.add_subplot(121)
+    ax2 = fig.add_subplot(122)
+
+    ax1.errorbar(Si['S1'], var_names, xerr=Si['S1_conf'], fmt='o')
+    ax1.plot([0, 0], [-0.3, 4.3], color='darkblue', linestyle='--', lw=2)
+    ax1.set_xlabel('Sensitivity')
+    ax1.set_title('First order sensitivity')
+
+    ax2.errorbar(Si['ST'], var_names, xerr=Si['ST_conf'], fmt='o')
+    ax2.plot([0, 0], [-0.3, 4.3], color='darkblue', linestyle='--', lw=2)
+    ax2.set_xlabel('Sensitivity')
+    ax2.get_yaxis().set_visible(False)
+    ax2.set_title('Total sensitivity')
+
+    plt.show()
 
 
 if __name__ == '__main__':
