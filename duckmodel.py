@@ -195,7 +195,7 @@ class MaleDuckAgent(Agent):
 
         neighborhood = moveducks.von_neumann_neighborhood(self.model, mate_pos, random_number)
         victims = moveducks.get_neighbors(self.model, neighborhood)
-        victims = [x for x in victims if isinstance(x, FemaleDuckAgent)]
+        victims = [x for x in victims if isinstance(x, FemaleDuckAgent) and x.ID != self.mate_id]
         if victims:
             victim = np.random.choice(victims)
             next_position = victim.pos
