@@ -11,6 +11,10 @@ def std(model):
     x = [x.aggression for x in model.schedule.agents if isinstance(x, MaleDuckAgent)]
     return np.std(x)
 
+def mean(model):
+    x = [x.aggression for x in model.schedule.agents if isinstance(x, MaleDuckAgent)]
+    return np.mean(x)
+
 class DuckModel(Model):
     """A model with some number of agents."""
     def __init__(self, N, width, height, season_length=20, mutation=0.3, partner_egg=20, base_succes_mate=0.2):
@@ -33,7 +37,7 @@ class DuckModel(Model):
         # Create agents
         ID = 0
         for _ in range(self.num_agents):
-            m = MaleDuckAgent(ID, ID+1, 5, mutation, self)
+            m = MaleDuckAgent(ID, ID+1, np.random.uniform(1, 21), mutation, self)
             self.duckdic[ID] = m
             ID += 1
 
@@ -55,7 +59,7 @@ class DuckModel(Model):
 
         # Create an object that collects the data every time step.
         self.datacollector = DataCollector(
-            model_reporters={"Standard deviation of aggression": std},
+            model_reporters={"Standard deviation of aggression": std, "mean":mean},
             agent_reporters={"Data": lambda duck: duck.data}
             )
 
@@ -188,7 +192,7 @@ class MaleDuckAgent(Agent):
     def step(self):
         random_number = abs(int(np.random.normal(0, self.aggression)))
         mate_pos = self.model.get_duck_by_id(self.mate_id).pos
-        
+
         neighborhood = moveducks.von_neumann_neighborhood(self.model, mate_pos, random_number)
         victims = moveducks.get_neighbors(self.model, neighborhood)
         victims = [x for x in victims if isinstance(x, FemaleDuckAgent)]
@@ -216,10 +220,56 @@ class MaleDuckAgent(Agent):
         self.data = self.aggression
 
 if __name__ == '__main__':
-    import time
-    start = time.time()
-    model = DuckModel(500, 60, 60)
-    for _ in range(1000):
-        model.step()
 
-    print (time.time() - start)
+    def newmodel(n, season_length, mutation, partner_egg):
+        # run the model for these params
+        mymodel = DuckModel(n, 50, 50, season_length, mutation, partner_egg, 0)
+        # run that model
+        for _ in range(1000):
+            mymodel.step()
+
+        data = mymodel.datacollector.get_model_vars_dataframe()
+        mystd = np.mean(data.iloc[500:, 0])
+        mymean = np.mean(data.iloc[500:, 1])
+
+        return mystd, mymean
+
+
+    from tqdm import tqdm
+
+
+    #savefile = open("savefile1", "r")
+    #
+    # for ni in range(0,3):
+    #     n = 50 + ni * 10
+    #     for sli in range(0,3):
+    #         season_length = 5 + 15 * sli
+    #         for mi in range(0,3):
+    #             mutation = 0.05 + 0.05 * mi
+    #             for pei in tqdm(range(0,4)):
+    #                 partner_egg = 5 + 10 * pei
+    #
+    #                 data_to_save = newmodel(n, season_length, mutation, partner_egg)
+    #                 savefile.write("{} {} {} {}: {} {}\n".format(n, season_length, mutation, partner_egg, std, mean))
+
+    currentfile = open("savefile" , "r")
+
+    for line in currentfile.readlines():
+        inhoud = line.split()
+        n = int(inhoud[0])
+        season_length = int(inhoud[1])
+        mutation = float(inhoud[2])
+        partner_egg = int(inhoud[3])
+
+        std_tot = []
+        mean_tot = []
+
+        for _ in tqdm(range(5)):
+            mystd, mymean = newmodel(n, season_length, mutation, partner_egg)
+            std_tot.append(mystd)
+            mean_tot.append(mymean)
+
+        mystd = np.mean(std_tot)
+        mymean = np.mean(mean_tot)
+
+        print ("{} {} {} {}: {} {}\n".format(n, season_length, mutation, partner_egg, mystd, mymean))
