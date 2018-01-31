@@ -29,11 +29,9 @@ class DuckData():
 def get_data(model):
     assert isinstance(model, duckmodel.DuckModel), "This function takes as input only a DuckModel"
 
-    stds = model.datacollector.get_model_vars_dataframe()
-    stds = stds.values
+    stds = get_standard_deviations(model)
+    mean = get_mean(model)
     data = model.datacollector.get_agent_vars_dataframe()
-
-
 
     aggression = data.values[::2]
     size = aggression.shape[0]
@@ -42,18 +40,18 @@ def get_data(model):
     female_sex = data.values[1::2]
     female_sex = female_sex.reshape((int(size/model.num_agents), model.num_agents))
 
-    return stds, aggression, female_sex
+    return stds, mean, aggression, female_sex
 
 def get_standard_deviations(model):
     model_data = model.datacollector.get_model_vars_dataframe()
     # Standard deviation in first column.
-    stds = model_data.iloc[:,0]
+    stds = np.array(model_data.iloc[:,0])
     return stds
 
 def get_mean(model):
     model_data = model.datacollector.get_model_vars_dataframe()
     # Mean in second column.
-    mean = model_data.iloc[:,1]
+    mean = np.array(model_data.iloc[:,1])
     return mean
 
 def get_female_sex(model):
@@ -149,19 +147,9 @@ if __name__ == '__main__':
     # data = load_model('2018-01-24T05:32:43')
     # print(data.to_string())
 
-<<<<<<< HEAD
-    plt.plot(data.stds)
-    plt.show()
-    plt.plot(data.aggs[:,2])
-    plt.show()
-    plt.plot(data.fsexs[:,2])
-    plt.show()
-=======
     # plt.plot(data.stds)
     # plt.show()
     # plt.plot(data.aggs[:,2])
     # plt.show()
     # plt.plot(data.fsexs[:,2])
     # plt.show()
-    
->>>>>>> 93bde5367df4903149931c0179d2be26cbd0c27c
