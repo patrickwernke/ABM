@@ -72,14 +72,49 @@ def load_model(name):
 
 
 if __name__ == '__main__':
-    n = 100
+    n = 400
     width = 100
     height = 100
     season_length = 20
     mutation = 0.1
     partner_egg = 10
-    base_succes_mate = 0.2
-    runtime = 1500
+    base_succes_mate = 0.1
+    runtime = 6000
+
+    # duckdatas = []
+    # from tqdm import tqdm
+    # for i in tqdm(range(20)):
+    #     m = duckmodel.DuckModel(n,width,height, season_length, mutation, partner_egg, base_succes_mate)
+
+    #     # run that model
+    #     for _ in range(runtime):
+    #         m.step()
+
+    #     # save the important values with a datename
+    #     name = datetime.datetime.now().replace(microsecond=0).isoformat()
+    #     save_model(DuckData(m), name)
+    #     duckdatas.append(name)
+    # print(duckdatas)
+
+    duckdatas = ['2018-01-27T01:23:00', '2018-01-27T01:28:33', '2018-01-27T01:34:18', '2018-01-27T01:39:45', '2018-01-27T01:44:59', '2018-01-27T01:51:31', '2018-01-27T01:57:28', '2018-01-27T02:02:41', '2018-01-27T02:07:57', '2018-01-27T02:12:58', '2018-01-27T02:18:40', '2018-01-27T02:24:49', '2018-01-27T02:31:27', '2018-01-27T02:36:23', '2018-01-27T02:41:55', '2018-01-27T02:47:04', '2018-01-27T02:52:37', '2018-01-27T02:59:38', '2018-01-27T03:05:56', '2018-01-27T03:11:55']
+    all_stds = []
+    end_aggs = []
+    for name in duckdatas:
+        data = load_model(name)
+        all_stds.append(data.stds)
+        plt.plot(data.stds)
+        end_aggs = np.concatenate((end_aggs, data.aggs[runtime-1,:]))
+        # end_aggs.append(data.aggs[runtime-1,:])
+    plt.show()
+
+    all_stds = np.array(all_stds)
+    t = range(0,runtime)
+    plt.errorbar(t, np.mean(all_stds, axis=0), yerr=np.var(all_stds, axis=0))
+    plt.show()
+
+    plt.hist(end_aggs, np.unique(end_aggs), align="mid", rwidth=0.8)
+    plt.show()
+
 
     # # these are only some parameter tests
     # for ni in range(0,3):
@@ -104,13 +139,13 @@ if __name__ == '__main__':
     #                 print(duckdata.to_string(), '\n')
     #                 save_model(duckdata, name)
 
-    data = load_model('2018-01-24T05:32:43')
-    print(data.to_string())
+    # data = load_model('2018-01-24T05:32:43')
+    # print(data.to_string())
 
-    plt.plot(data.stds)
-    plt.show()
-    plt.plot(data.aggs[:,2])
-    plt.show()
-    plt.plot(data.fsexs[:,2])
-    plt.show()
+    # plt.plot(data.stds)
+    # plt.show()
+    # plt.plot(data.aggs[:,2])
+    # plt.show()
+    # plt.plot(data.fsexs[:,2])
+    # plt.show()
     
