@@ -27,7 +27,6 @@ class DuckData():
 
 # Several small functions for extracting the data from the datacollector as np arrays.
 def get_data(model):
-    assert isinstance(model, duckmodel.DuckModel), "This function takes as input only a DuckModel"
 
     stds = get_standard_deviations(model)
     mean = get_mean(model)

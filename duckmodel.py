@@ -223,14 +223,23 @@ if __name__ == '__main__':
 
     def newmodel(n, season_length, mutation, partner_egg):
         # run the model for these params
-        mymodel = DuckModel(n, 50, 50, season_length, mutation, partner_egg, 0)
-        # run that model
-        for _ in range(1000):
-            mymodel.step()
 
-        data = mymodel.datacollector.get_model_vars_dataframe()
-        mystd = np.mean(data.iloc[500:, 0])
-        mymean = np.mean(data.iloc[500:, 1])
+        for simrun in range(5):
+            mymodel = DuckModel(n, 50, 50, season_length, mutation, partner_egg, 0)
+            # run that model
+            for _ in range(3000):
+                mymodel.step()
+
+            mystd, mymean, aggression, fem_sex = get_data(mymodel)
+            plt.subplot(1,2,1)
+            plt.plot(mystd)
+
+            plt.subplot(1,2,2)
+            plt.plot(mymean)
+
+            plt.show()
+            print (aggression.shape)
+            print (aggression[2999,:])
 
         return mystd, mymean
 
@@ -238,7 +247,7 @@ if __name__ == '__main__':
     from tqdm import tqdm
 
 
-    #savefile = open("savefile1", "r")
+    # savefile = open("savefile1", "w")
     #
     # for ni in range(0,3):
     #     n = 50 + ni * 10
@@ -252,24 +261,32 @@ if __name__ == '__main__':
     #                 data_to_save = newmodel(n, season_length, mutation, partner_egg)
     #                 savefile.write("{} {} {} {}: {} {}\n".format(n, season_length, mutation, partner_egg, std, mean))
 
-    currentfile = open("savefile" , "r")
+    #currentfile = open("savefile_converged" , "r")
+    #
+    # for line in currentfile.readlines():
+    #     inhoud = line.split()
+    #     n = int(inhoud[0])
+    #     season_length = int(inhoud[1])
+    #     mutation = float(inhoud[2])
+    #     partner_egg = int(inhoud[3])
+    #
+    #     std_tot = []
+    #     mean_tot = []
+    #
+    #     for _ in tqdm(range(5)):
+    #         mystd, mymean = newmodel(n, season_length, mutation, partner_egg)
+    #         std_tot.append(mystd)
+    #         mean_tot.append(mymean)
+    #
+    #     mystd = np.mean(std_tot)
+    #     mymean = np.mean(mean_tot)
+    #
+    #     print ("{} {} {} {}: {} {}\n".format(n, season_length, mutation, partner_egg, mystd, mymean))
 
-    for line in currentfile.readlines():
-        inhoud = line.split()
-        n = int(inhoud[0])
-        season_length = int(inhoud[1])
-        mutation = float(inhoud[2])
-        partner_egg = int(inhoud[3])
+    import matplotlib.pyplot as plt
+    from DataExtraction import get_data
 
-        std_tot = []
-        mean_tot = []
-
-        for _ in tqdm(range(5)):
-            mystd, mymean = newmodel(n, season_length, mutation, partner_egg)
-            std_tot.append(mystd)
-            mean_tot.append(mymean)
-
-        mystd = np.mean(std_tot)
-        mymean = np.mean(mean_tot)
-
-        print ("{} {} {} {}: {} {}\n".format(n, season_length, mutation, partner_egg, mystd, mymean))
+    #for n in tqdm(range(50, 500, 50)):
+    n = 50
+    mystd, mymean = newmodel(n, 25, 0.1, 10)
+    print ("{} {} {} {}: {} {}\n".format(n, 35, 0.1, 10, mystd, mymean))
