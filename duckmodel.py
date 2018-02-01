@@ -8,11 +8,11 @@ from mesa.datacollection import DataCollector
 import moveducks
 
 def std(model):
-    x = [x.aggression for x in model.schedule.agents if isinstance(x, MaleDuckAgent)]
+    x = [x.aggression for x in model.get_male_ducks()]
     return np.std(x)
 
 def mean(model):
-    x = [x.aggression for x in model.schedule.agents if isinstance(x, MaleDuckAgent)]
+    x = [x.aggression for x in model.get_male_ducks()]
     return np.mean(x)
 
 class DuckModel(Model):
