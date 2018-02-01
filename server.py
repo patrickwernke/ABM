@@ -31,7 +31,7 @@ number_agent = UserSettableParameter("slider", "Number of agents", 20, 1, 100, 1
 season_length = UserSettableParameter("slider", "length of season", 20, 10, 50, 1)
 mutation = UserSettableParameter("slider", "Mutation chance", 0.1, 0, 1, 0.05)
 partner_egg = UserSettableParameter("slider", "# partner mating", 20, 10, 50, 1)
-base_succes_mate = UserSettableParameter("slider", "Base succes chance of mating", 0.25, 0, 1, 0.05)
+base_succes_mate = UserSettableParameter("slider", "Base success chance of mating", 0.25, 0, 1, 0.05)
 
 # Graphs
 histogram = HistogramModule(list(range(1,21)), 200, 500)

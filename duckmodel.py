@@ -108,7 +108,10 @@ class DuckModel(Model):
         for female, mate_traits in zip(kill, replace):
             # set the new mates traits
             female.mate.reset(mate_traits)
-            # reset the females sexual encounters
+        
+
+        for female in self.get_female_ducks():
+            # reset the females sexual encounters        
             female.reset()
 
 class FemaleDuckAgent(Agent):
@@ -188,7 +191,7 @@ class MaleDuckAgent(Agent):
         # data gathering
         self.data=aggression
 
-    # Make a step towards the female and mate if they are in range.
+    # Move toward a female in range and mate, or move randomly.
     def step(self):
         random_number = abs(int(np.random.normal(0, self.aggression)))
         mate_pos = self.model.get_duck_by_id(self.mate_id).pos
