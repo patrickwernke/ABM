@@ -85,39 +85,66 @@ if __name__ == '__main__':
     base_succes_mate = 0.1
     runtime = 6000
 
-    # duckdatas = []
-    # from tqdm import tqdm
-    # for i in tqdm(range(20)):
-    #     m = duckmodel.DuckModel(n,width,height, season_length, mutation, partner_egg, base_succes_mate)
+    # DATA AGGREGATION FROM HERE.....
+    from joblib import Parallel, delayed
+    from tqdm import tqdm
+    # runs the model, saves the data, returns the name of file with the new data
+    def run_model():
+        m = duckmodel.DuckModel(n,width,height, season_length, mutation, partner_egg, base_succes_mate)
 
-    #     # run that model
-    #     for _ in range(runtime):
-    #         m.step()
+        # run that model
+        for _ in range(runtime):
+            m.step()
 
-    #     # save the important values with a datename
-    #     name = datetime.datetime.now().replace(microsecond=0).isoformat()
-    #     save_model(DuckData(m), name)
-    #     duckdatas.append(name)
-    # print(duckdatas)
+        # save the important values with a datename
+        name = datetime.datetime.now().replace(microsecond=1).isoformat()
+        save_model(DuckData(m), name)
+        return name
 
-    duckdatas = ['2018-01-27T01:23:00', '2018-01-27T01:28:33', '2018-01-27T01:34:18', '2018-01-27T01:39:45', '2018-01-27T01:44:59', '2018-01-27T01:51:31', '2018-01-27T01:57:28', '2018-01-27T02:02:41', '2018-01-27T02:07:57', '2018-01-27T02:12:58', '2018-01-27T02:18:40', '2018-01-27T02:24:49', '2018-01-27T02:31:27', '2018-01-27T02:36:23', '2018-01-27T02:41:55', '2018-01-27T02:47:04', '2018-01-27T02:52:37', '2018-01-27T02:59:38', '2018-01-27T03:05:56', '2018-01-27T03:11:55']
-    all_stds = []
-    end_aggs = []
-    for name in duckdatas:
-        data = load_model(name)
-        all_stds.append(data.stds)
-        plt.plot(data.stds)
-        end_aggs = np.concatenate((end_aggs, data.aggs[runtime-1,:]))
-        # end_aggs.append(data.aggs[runtime-1,:])
-    plt.show()
+    duckdatas = []
+    n_runs = 2 # number of parralel data aggregations
+    n_jobs = 3 # number of cores here
+    for _ in tqdm(range(n_runs)):
+        duckdatas += Parallel(n_jobs=3)(delayed(run_model)() for _ in range(n_jobs))
 
-    all_stds = np.array(all_stds)
-    t = range(0,runtime)
-    plt.errorbar(t, np.mean(all_stds, axis=0), yerr=np.var(all_stds, axis=0))
-    plt.show()
+    # copy this into duckdatas below to show results
+    print(duckdatas)
+    # ... TO HERE
 
-    plt.hist(end_aggs, np.unique(end_aggs), align="mid", rwidth=0.8)
-    plt.show()
+    # duckdatas = ['2018-02-01T12:47:15.000001', '2018-02-01T12:46:52.000001', '2018-02-01T12:44:55.000001', '2018-02-01T12:56:12.000001', '2018-02-01T12:58:47.000001', '2018-02-01T12:56:24.000001']
+    # all_stds = []
+    # end_aggs = []
+
+    # # Two subplots, the axes array is 1-d
+    # f, ax = plt.subplots(2, sharex=True)
+    # ax[0].set_title("Aggression over time")
+    # ax[0].set_ylabel("Mean")
+    # ax[1].set_xlabel("Runtime (steps)")
+    # ax[1].set_ylabel("Standard deviation")
+
+    # for name in duckdatas:
+    #     data = load_model(name)
+    #     # save all stds in a single list
+    #     all_stds.append(data.stds)
+
+    #     # plot stds and means
+    #     ax[0].plot(data.stds)
+    #     ax[1].plot(data.means)
+
+    #     # histogram of last aggressions of all runs
+    #     # end_aggs = np.concatenate((end_aggs, data.aggs[runtime-1,:]))
+    #     # histogram of last aggressions of 1 run
+    #     end_aggs = data.aggs[runtime-1,:]
+
+    # plt.show()
+
+    # all_stds = np.array(all_stds)
+    # t = range(0,runtime)
+    # plt.errorbar(t, np.mean(all_stds, axis=0), yerr=np.var(all_stds, axis=0))
+    # plt.show()
+
+    # plt.hist(end_aggs, np.unique(end_aggs), align="mid", rwidth=0.8)
+    # plt.show()
 
 
     # # these are only some parameter tests
