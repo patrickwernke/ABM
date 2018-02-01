@@ -17,7 +17,7 @@ class DuckData():
             ('Season length',model.season_length),
             ('Runtime',model.current_step)
         ]
-        self.stds, self.aggs, self.fsexs = get_data(model)
+        self.stds, self.means, self.aggs, self.fsexs = get_data(model)
 
     # return a string describing this models parameters
     def to_string(self):
