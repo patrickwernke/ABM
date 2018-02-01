@@ -1,7 +1,7 @@
 import duckmodel
 import numpy as np
 import pickle
-import datetime
+from datetime import datetime
 import matplotlib.pyplot as plt
 
 
@@ -76,14 +76,14 @@ def load_model(name):
 
 
 if __name__ == '__main__':
-    n = 400
+    n = 500
     width = 100
     height = 100
-    season_length = 20
+    season_length = 30
     mutation = 0.1
-    partner_egg = 10
+    partner_egg = 5
     base_succes_mate = 0.1
-    runtime = 6000
+    runtime = 5000
 
     # DATA AGGREGATION FROM HERE.....
     from joblib import Parallel, delayed
@@ -97,7 +97,7 @@ if __name__ == '__main__':
             m.step()
 
         # save the important values with a datename
-        name = datetime.datetime.now().replace(microsecond=1).isoformat()
+        name = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
         save_model(DuckData(m), name)
         return name
 

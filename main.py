@@ -8,34 +8,47 @@ import numpy as np
 from tqdm import tqdm
 import pickle
 import matplotlib.pyplot as plt
+from math import sqrt
+from joblib import Parallel, delayed
 
-def run_duck_get_stds(values, steps):
-    result = np.zeros(values.shape[0])
-    for i, vals in tqdm(enumerate(values)):        
-        m = DuckModel(vals[0], 60, 60, vals[1], vals[2], vals[3], vals[4])
-        for _ in range(steps):
-            m.step()
-        season_length = m.season_length
-        std = mean(get_standard_deviations(m)[200:])
-        result[i] = std
-    return result
+def run_duck_get_stds(vals, steps, i):
+    # set the correct dimensions and ducks for given density
+    N = 250
+    # width and height are root(density * number_ducks)
+    size = int(sqrt(vals[0] * N))
+
+    m = DuckModel(N, size, size, vals[1], vals[2], vals[3], vals[4])
+    for _ in range(steps):
+        m.step()
+    season_length = m.season_length
+    std = mean(get_standard_deviations(m)[200:])
+    return std
+
+def run_ducks_get_stds(values, steps):
+    num_cores = 3
+    results = []
+    for j in tqdm(range(0, int(values.shape[0]/num_cores))):
+        job_num = j * num_cores
+        parallel_subresults = Parallel(n_jobs=num_cores)\
+                                (delayed(run_duck_get_stds)(values[job_num+i], steps, job_num+i) for i in range(num_cores))
+        results += parallel_subresults
+    return np.array(results)
     
 # get results of our model for number of iterations and write to data/name
 def make_results(name):
     problem = read_param_file('./params.txt')
-    param_vals = saltelli.sample(problem, 90, calc_second_order=True)
+    param_vals = saltelli.sample(problem, 10, calc_second_order=True)
     print("Total amount of iterations:", param_vals.shape[0])
-    results = run_duck_get_stds(param_vals, 1200)
-    Si = sobol.analyze(problem, results, calc_second_order=True, conf_level=0.95, print_to_console=True)
+    results = run_ducks_get_stds(param_vals, 5000)
+    Si = sobol.analyze(problem, results, calc_second_order=True, conf_level=0.95, print_to_console=True, parallel=True, n_processors=3)
     print(Si)
     pickle.dump( Si, open("data/" + name, "wb" ) )
 
 # get results from data/name file and analyse them
 def analyze_results(name):
     Si = pickle.load( open("data/" + name, "rb" ) )
-    # print(Si)
 
-    var_names = ['N', 'Season length', 'Mutation', 'Partner egg', 'Base succes mate']
+    var_names = ['Density', 'Season length', 'Mutation', 'Partner egg', 'Base succes mate']
 
     fig = plt.figure(figsize=(12, 6))
     ax1 = fig.add_subplot(121)
@@ -56,5 +69,5 @@ def analyze_results(name):
 
 
 if __name__ == '__main__':
-    # make_results('naampje_voor_bestandje')
-    analyze_results('Si_aggMating_1080it')
+    make_results('Si_std_short')
+    analyze_results('Si_std_short')
