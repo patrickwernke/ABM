@@ -37,7 +37,7 @@ class DuckModel(Model):
         # Create agents
         ID = 0
         for _ in range(self.num_agents):
-            m = MaleDuckAgent(ID, ID+1, np.random.uniform(1, 21), mutation, self)
+            m = MaleDuckAgent(ID, ID+1, np.random.randint(1, 21), mutation, self)
             self.duckdic[ID] = m
             ID += 1
 
@@ -108,10 +108,10 @@ class DuckModel(Model):
         for female, mate_traits in zip(kill, replace):
             # set the new mates traits
             female.mate.reset(mate_traits)
-        
+
 
         for female in self.get_female_ducks():
-            # reset the females sexual encounters        
+            # reset the females sexual encounters
             female.reset()
 
 class FemaleDuckAgent(Agent):
