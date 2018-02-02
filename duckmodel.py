@@ -8,15 +8,42 @@ from mesa.datacollection import DataCollector
 import moveducks
 
 def std(model):
+    """ Given model, returns the standard deviation of the aggression values of the male ducks"""
     x = [x.aggression for x in model.get_male_ducks()]
     return np.std(x)
 
 def mean(model):
+    """ Given model, returns the mean of the aggression values of the male ducks"""
     x = [x.aggression for x in model.get_male_ducks()]
     return np.mean(x)
 
 class DuckModel(Model):
-    """A model with some number of agents."""
+    """
+    The DuckModel consists of an equal number of male and female ducks,
+    placed on a grid in pairs. Each duck has exactly one mate, and every
+    male duck starts out with a random value for its level of aggression.
+    At every time step, each female duck moves to a random position within
+    a short radius of their current position. 
+    The male ducks search for another female duck within a certain range
+    from their mate, the size of this range is a random number, but its 
+    expected value increases with aggression signifying that more
+    aggressive males are more likely to wander further from their mate 
+    looking for another female. If a female is found within this range, he
+    will to mate with her. The probability of successful mating depends on 
+    the agggression of the mate of the female, as a lower aggression 
+    increases the probability that he will try to defend his mate. 
+    
+    At the end of the season, each male duck has a fifty percent chance of
+    dying. Each dead duck is then replaced by offspring from a female duck
+    chosen at random. From this female duck, a successful copulation is 
+    chosen, signifying the offspring being from that particular male. As
+    males do not in this model mate with their mate, they are given a base
+    number of sexual encounters.  
+    
+    After the male signifying the father has been selected, his aggression
+    is given to the new duck, with some probability of it being mutated.
+    Mutation in this regard means being increased or decreased by one.
+    """
     def __init__(self, N, width, height, season_length=20, mutation=0.3, partner_egg=20, base_succes_mate=0.2):
         self.running=True
         width=int(width)
