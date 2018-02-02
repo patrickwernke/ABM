@@ -1,4 +1,16 @@
 def von_neumann_neighborhood(model, pos, radius):
+    """
+    Given a position and a radius in a model,
+    returns the correct von neumann neighborhood.
+    
+    If radius is large compared to the grid, can 
+    return certain positions more than once.
+    
+    Mesa's implementation is entirely incorrect, 
+    thus necessitating this function.
+    """
+
+
     max_height = model.grid.height
     max_width = model.grid.width
     
@@ -25,6 +37,7 @@ def von_neumann_neighborhood(model, pos, radius):
     return p
                 
 def get_neighbors(model, neighborhood):
+    """Returns all agents in a neighborhood"""
     agents = model.grid.get_cell_list_contents(neighborhood)
     return list(set(agents))
                 
