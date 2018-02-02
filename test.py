@@ -3,6 +3,9 @@ import duckmodel
 import moveducks
 from copy import deepcopy
 
+# Several automated tests for moveducks.py and duckmodel.py
+# Run occasionally to check if everything still works as expected
+
 def test_moveducks():
     model = duckmodel.DuckModel(1, 2, 2)
     radius1 = moveducks.von_neumann_neighborhood(model, (1,1), 1)

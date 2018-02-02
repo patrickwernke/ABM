@@ -39,4 +39,4 @@ grid = CanvasGrid(duck_portrayal, WIDTH, HEIGHT, 500, 500)
 
 model_args = {'N':number_agent, 'width':WIDTH, 'height':HEIGHT, "season_length": season_length,
                 "mutation": mutation, "partner_egg": partner_egg, "base_succes_mate": base_succes_mate}
-server = ModularServer(DuckModel, [grid, histogram], 'Mating of ducks', model_args)
+server = ModularServer(DuckModel, [grid, histogram], 'DuckModel', model_args)
