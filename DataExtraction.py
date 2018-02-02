@@ -81,101 +81,86 @@ if __name__ == '__main__':
     height = 100
     season_length = 30
     mutation = 0.1
-    partner_egg = 5
+    partner_egg = 8
     base_succes_mate = 0.1
     runtime = 5000
 
-    # DATA AGGREGATION FROM HERE.....
-    from joblib import Parallel, delayed
-    from tqdm import tqdm
-    # runs the model, saves the data, returns the name of file with the new data
-    def run_model():
-        m = duckmodel.DuckModel(n,width,height, season_length, mutation, partner_egg, base_succes_mate)
-
-        # run that model
-        for _ in range(runtime):
-            m.step()
-
-        # save the important values with a datename
-        name = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
-        save_model(DuckData(m), name)
-        return name
-
-    duckdatas = []
-    n_runs = 2 # number of parralel data aggregations
-    n_jobs = 3 # number of cores here
-    for _ in tqdm(range(n_runs)):
-        duckdatas += Parallel(n_jobs=3)(delayed(run_model)() for _ in range(n_jobs))
-
-    # copy this into duckdatas below to show results
-    print(duckdatas)
+    # # DATA AGGREGATION FROM HERE.....
+    # from joblib import Parallel, delayed
+    # from tqdm import tqdm
+    # # runs the model, saves the data, returns the name of file with the new data
+    # def run_model():
+    #     m = duckmodel.DuckModel(n,width,height, season_length, mutation, partner_egg, base_succes_mate)
+    #
+    #     # run that model
+    #     for _ in range(runtime):
+    #         m.step()
+    #
+    #     # save the important values with a datename
+    #     name = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
+    #     save_model(DuckData(m), name)
+    #     return name
+    #
+    # duckdatas = []
+    # n_runs = 2 # number of parralel data aggregations
+    # n_jobs = 3 # number of cores here
+    # for _ in tqdm(range(n_runs)):
+    #     duckdatas += Parallel(n_jobs=3)(delayed(run_model)() for _ in range(n_jobs))
+    #
+    # # copy this into duckdatas below to show results
+    # print(duckdatas)
     # ... TO HERE
 
-    # duckdatas = ['2018-02-01T12:47:15.000001', '2018-02-01T12:46:52.000001', '2018-02-01T12:44:55.000001', '2018-02-01T12:56:12.000001', '2018-02-01T12:58:47.000001', '2018-02-01T12:56:24.000001']
-    # all_stds = []
-    # end_aggs = []
 
-    # # Two subplots, the axes array is 1-d
-    # f, ax = plt.subplots(2, sharex=True)
-    # ax[0].set_title("Aggression over time")
-    # ax[0].set_ylabel("Mean")
-    # ax[1].set_xlabel("Runtime (steps)")
-    # ax[1].set_ylabel("Standard deviation")
+    duckdatas = ['2018-02-02T13:49:10.167', '2018-02-02T13:54:13.052', '2018-02-02T13:51:23.276', '2018-02-02T14:11:46.393', '2018-02-02T14:09:15.729', '2018-02-02T14:11:19.731', '1', '2', '3', '4', '5', '6']
+    #duckdatas = ['2018-02-02T15:14:26.613', '2018-02-02T15:12:44.539', '2018-02-02T15:10:09.433', '2018-02-02T15:36:33.455', '2018-02-02T15:38:09.558', '2018-02-02T15:36:38.043']
 
-    # for name in duckdatas:
-    #     data = load_model(name)
-    #     # save all stds in a single list
-    #     all_stds.append(data.stds)
+    all_stds = []
+    all_means = []
+    end_aggs = []
 
-    #     # plot stds and means
-    #     ax[0].plot(data.stds)
-    #     ax[1].plot(data.means)
+    # Two subplots, the axes array is 1-d
+    f, ax = plt.subplots(2, sharex=True)
+    ax[0].set_title("Aggression over time")
+    ax[0].set_ylabel("Standard deviation")
+    ax[1].set_xlabel("Runtime (steps)")
+    ax[1].set_ylabel("Mean")
 
-    #     # histogram of last aggressions of all runs
-    #     # end_aggs = np.concatenate((end_aggs, data.aggs[runtime-1,:]))
-    #     # histogram of last aggressions of 1 run
-    #     end_aggs = data.aggs[runtime-1,:]
+    for name in duckdatas:
+        data = load_model(name)
+        # save all stds in a single list
+        all_stds.append(data.stds)
+        all_means.append(data.means)
 
-    # plt.show()
+        # plot stds and means
+        ax[0].plot(data.stds)
+        ax[1].plot(data.means)
 
-    # all_stds = np.array(all_stds)
-    # t = range(0,runtime)
-    # plt.errorbar(t, np.mean(all_stds, axis=0), yerr=np.var(all_stds, axis=0))
-    # plt.show()
+        # histogram of last aggressions of all runs
+        # end_aggs = np.concatenate((end_aggs, data.aggs[runtime-1,:]))
+        # histogram of last aggressions of 1 run
+        end_aggs = data.aggs[runtime-1,:]
 
-    # plt.hist(end_aggs, np.unique(end_aggs), align="mid", rwidth=0.8)
-    # plt.show()
+    plt.show()
 
 
-    # # these are only some parameter tests
-    # for ni in range(0,3):
-    #     n = 100 + ni * 300
-    #     for sli in range(0,3):
-    #         season_length = 5 + 15 * sli
-    #         for mi in range(0,3):
-    #             mutation = 0.05 + 0.05 * mi
-    #             for pei in range(0,4):
-    #                 partner_egg = 5 + 10 * pei
+    all_stds = np.array(all_stds)
+    all_means = np.array(all_means)
+    t = range(0, runtime)
+    plt.subplot(2,1,1)
+    plt.plot(t, np.mean(all_stds, axis=0))
+    plt.fill_between(t, np.mean(all_stds, axis=0) + np.std(all_stds, axis=0)/len(duckdatas)**0.5, np.mean(all_stds, axis=0) - np.std(all_stds, axis=0)/len(duckdatas)**0.5, alpha = '0.5')
+    plt.xlabel("t")
+    plt.ylabel("standard deviation")
 
-    #                 # run the model for these params
-    #                 m = duckmodel.DuckModel(n,width,height, season_length, mutation, partner_egg, base_succes_mate)
+    plt.subplot(2,1,2)
+    plt.plot(t, np.mean(all_means, axis=0))
+    plt.fill_between(t, np.mean(all_means, axis=0) + np.std(all_means, axis=0)/len(duckdatas)**0.5, np.mean(all_means, axis=0) - np.std(all_means, axis=0)/len(duckdatas)**0.5, alpha = '0.5')
+    plt.xlabel("t")
+    plt.ylabel("mean")
+    plt.show()
 
-    #                 # run that model
-    #                 for _ in range(runtime):
-    #                     m.step()
-
-    #                 # save the important values with a datename
-    #                 duckdata = DuckData(m)
-    #                 name = datetime.datetime.now().replace(microsecond=0).isoformat()
-    #                 print(duckdata.to_string(), '\n')
-    #                 save_model(duckdata, name)
-
-    # data = load_model('2018-01-24T05:32:43')
-    # print(data.to_string())
-
-    # plt.plot(data.stds)
-    # plt.show()
-    # plt.plot(data.aggs[:,2])
-    # plt.show()
-    # plt.plot(data.fsexs[:,2])
-    # plt.show()
+    plt.hist(end_aggs, np.unique(end_aggs), align="mid", rwidth=0.8)
+    plt.xlabel("level male duck aggressiveness")
+    plt.ylabel("number of ducks")
+    plt.show()
