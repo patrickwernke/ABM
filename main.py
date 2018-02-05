@@ -37,10 +37,10 @@ def run_ducks_get_stds(values, steps):
 # get results of our model for number of iterations and write to data/name
 def make_results(name):
     problem = read_param_file('./params.txt')
-    param_vals = saltelli.sample(problem, 10, calc_second_order=True)
+    param_vals = saltelli.sample(problem, 72, calc_second_order=False)
     print("Total amount of iterations:", param_vals.shape[0])
     results = run_ducks_get_stds(param_vals, 5000)
-    Si = sobol.analyze(problem, results, calc_second_order=True, conf_level=0.95, print_to_console=True, parallel=True, n_processors=3)
+    Si = sobol.analyze(problem, results, calc_second_order=False, conf_level=0.95, print_to_console=True, parallel=True, n_processors=3)
     print(Si)
     pickle.dump( Si, open("data/" + name, "wb" ) )
 
@@ -69,5 +69,5 @@ def analyze_results(name):
 
 
 if __name__ == '__main__':
-    make_results('Si_std_short')
-    analyze_results('Si_std_short')
+    # make_results('naampie')
+    analyze_results('Si_std_long')
