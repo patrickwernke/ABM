@@ -1,6 +1,12 @@
 # ABM
 This is the project for the Agent-Based Modelling course at the UvA.
 
+Required packages:
+DONT USE PIP IN THIS DIRECTORY!
+Because the mesa package is already included in these files, a bug in mac and ubuntu (as far as we know), completely breaks your pip! Repairing this issue is a pain, so please just pip install in home directory...
+$ pip install SAlib pandas tqdm
+
+
 
 DuckModel.py:
 Contains the environment(Duckmodel) and the agents(Male/Female DuckAgent).
