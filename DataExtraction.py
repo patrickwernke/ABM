@@ -64,15 +64,14 @@ def get_male_aggression(model):
     size = aggression.shape[0]
     aggression = aggression.reshape((int(size/model.num_agents), model.num_agents))
     return aggression
-
-
+7
 # save parameters and data of a model
 def save_model(duckdata, name):
-    pickle.dump( duckdata, open("data/" + name, "wb" ) )
+    pickle.dump( duckdata, open("data1/" + name, "wb" ) )
 
 # load parameters and data of a model
 def load_model(name):
-    return pickle.load( open("data/" + name, "rb" ) )
+    return pickle.load( open("data1/" + name, "rb" ) )
 
 
 if __name__ == '__main__':
@@ -83,7 +82,7 @@ if __name__ == '__main__':
     mutation = 0.1
     partner_egg = 8
     base_succes_mate = 0.1
-    runtime = 5000
+    runtime = 10000
 
     # # DATA AGGREGATION FROM HERE.....
     # from joblib import Parallel, delayed
@@ -102,18 +101,19 @@ if __name__ == '__main__':
     #     return name
     #
     # duckdatas = []
-    # n_runs = 2 # number of parralel data aggregations
+    # n_runs = 4  # number of parralel data aggregations
     # n_jobs = 3 # number of cores here
     # for _ in tqdm(range(n_runs)):
     #     duckdatas += Parallel(n_jobs=3)(delayed(run_model)() for _ in range(n_jobs))
     #
     # # copy this into duckdatas below to show results
     # print(duckdatas)
-    # ... TO HERE
+    # #... TO HERE
 
+    # partner egg = 8
+    # duckdatas = ['2018-02-02T18:04:41.402', '2018-02-02T18:03:26.283', '2018-02-02T17:50:53.859', '2018-02-02T20:01:03.725', '2018-02-02T19:38:50.023', '2018-02-02T19:59:55.054']
+    duckdatas = ['2018-02-03T08:15:47.797', '2018-02-03T08:23:58.476', '2018-02-03T08:11:53.388', '2018-02-03T08:53:57.890', '2018-02-03T08:51:21.119', '2018-02-03T08:54:14.803', '2018-02-03T09:33:18.604', '2018-02-03T09:30:22.135', '2018-02-03T09:23:53.713', '2018-02-03T10:01:40.659', '2018-02-03T10:07:57.283', '2018-02-03T10:09:33.320']
 
-    duckdatas = ['2018-02-02T13:49:10.167', '2018-02-02T13:54:13.052', '2018-02-02T13:51:23.276', '2018-02-02T14:11:46.393', '2018-02-02T14:09:15.729', '2018-02-02T14:11:19.731', '1', '2', '3', '4', '5', '6']
-    #duckdatas = ['2018-02-02T15:14:26.613', '2018-02-02T15:12:44.539', '2018-02-02T15:10:09.433', '2018-02-02T15:36:33.455', '2018-02-02T15:38:09.558', '2018-02-02T15:36:38.043']
 
     all_stds = []
     all_means = []
@@ -140,6 +140,12 @@ if __name__ == '__main__':
         # end_aggs = np.concatenate((end_aggs, data.aggs[runtime-1,:]))
         # histogram of last aggressions of 1 run
         end_aggs = data.aggs[runtime-1,:]
+
+
+        plt.hist(end_aggs, np.unique(end_aggs), align="mid", rwidth=0.8)
+        plt.xlabel("level male duck aggressiveness")
+        plt.ylabel("number of ducks")
+        plt.show()
 
     plt.show()
 
