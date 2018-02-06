@@ -23,23 +23,23 @@ class DuckModel(Model):
     placed on a grid in pairs. Each duck has exactly one mate, and every
     male duck starts out with a random value for its level of aggression.
     At every time step, each female duck moves to a random position within
-    a short radius of their current position. 
+    a short radius of their current position.
     The male ducks search for another female duck within a certain range
-    from their mate, the size of this range is a random number, but its 
+    from their mate, the size of this range is a random number, but its
     expected value increases with aggression signifying that more
-    aggressive males are more likely to wander further from their mate 
+    aggressive males are more likely to wander further from their mate
     looking for another female. If a female is found within this range, he
-    will to mate with her. The probability of successful mating depends on 
-    the agggression of the mate of the female, as a lower aggression 
-    increases the probability that he will try to defend his mate. 
-    
+    will to mate with her. The probability of successful mating depends on
+    the agggression of the mate of the female, as a lower aggression
+    increases the probability that he will try to defend his mate.
+
     At the end of the season, each male duck has a fifty percent chance of
     dying. Each dead duck is then replaced by offspring from a female duck
-    chosen at random. From this female duck, a successful copulation is 
+    chosen at random. From this female duck, a successful copulation is
     chosen, signifying the offspring being from that particular male. As
     males do not in this model mate with their mate, they are given a base
-    number of sexual encounters.  
-    
+    number of sexual encounters.
+
     After the male signifying the father has been selected, his aggression
     is given to the new duck, with some probability of it being mutated.
     Mutation in this regard means being increased or decreased by one.
@@ -96,12 +96,12 @@ class DuckModel(Model):
     def get_female_ducks(self):
         return self.female_ducks
 
-    # Get the duck object given its ID.
     def get_duck_by_id(self, ID):
+        """Get the duck object given its ID."""
         return self.duckdic[ID]
 
-    # Make one time step in the simulation.
     def step(self):
+        """Make one time step in the simulation."""
         self.datacollector.collect(self)
         self.current_step += 1
 
@@ -111,8 +111,8 @@ class DuckModel(Model):
 
         self.schedule.step()
 
-    # Pass on the genes of the ducks that have mated. 50% of all the male ducks die after a season.
     def endseason(self):
+    """Pass on the genes of the ducks that have mated. 50 percent of all the male ducks die after a season."""
         # number of new ducklings
         total_new = np.random.binomial(self.num_agents, .5)
 
@@ -155,8 +155,8 @@ class FemaleDuckAgent(Agent):
         # because mesa does not actually work
         self.data = partner_egg
 
-    # Move the female duck into a random position within a maximum radius.
     def step(self):
+    """Move the female duck into a random position within a maximum radius."""
         possible_steps = list(moveducks.von_neumann_neighborhood(self.model, self.pos, 2))
 
         # Loop over every possible cell until a cell with no female has been found.
@@ -174,8 +174,8 @@ class FemaleDuckAgent(Agent):
 
             possible_steps.remove(new_position)
 
-    # Calculate the chance of successful mating.
     def succes_mating(self):
+    """Calculate the chance of successful mating."""
         max_distance = 20
 
         # Success chance linearly increases if the male is further away until some threshold.
@@ -186,23 +186,22 @@ class FemaleDuckAgent(Agent):
         variable_chance = (1 - self.base_succes) * (min(1, self.mate.aggression / max_distance))
         return self.base_succes + variable_chance
 
-    # Add one mating to the possible list of mates.
     def mating(self,ID):
+    """Add one mating to the possible list of mates."""
         if np.random.random() < self.succes_mating():
             self.numsex[ID] = self.numsex.get(ID, 0) + 1
             # represents number of successful sexual encounters
             self.data+=1
 
-    # choose a male from all sexual encounters in this season
     def get_id_newduck(self):
-        # get a random duck from sexytimes
+    """choose a male from all sexual encounters in this season."""
         duck_id = np.random.choice(list(self.numsex.keys()),
                     p = np.array(list(self.numsex.values()))/sum(self.numsex.values()) )
 
         return duck_id
 
-    # Reset the mate list of the duck.
     def reset(self):
+    """Reset the mate list of the duck."""
         self.numsex = {}
         self.numsex[self.mate_id] = self.partner_egg
         self.data = self.partner_egg
@@ -218,11 +217,12 @@ class MaleDuckAgent(Agent):
         # data gathering
         self.data=aggression
 
-    # Move toward a female in range and mate, or move randomly.
     def step(self):
+    """Move toward a female in range and mate, or move randomly."""
         random_number = abs(int(np.random.normal(0, self.aggression)))
         mate_pos = self.model.get_duck_by_id(self.mate_id).pos
 
+        # Find other female in my neighboordhood.
         neighborhood = moveducks.von_neumann_neighborhood(self.model, mate_pos, random_number)
         victims = moveducks.get_neighbors(self.model, neighborhood)
         victims = [x for x in victims if isinstance(x, FemaleDuckAgent) and x.ID != self.mate_id]
@@ -235,8 +235,9 @@ class MaleDuckAgent(Agent):
             next_position = random.choice(neighborhood)
             self.model.grid.move_agent(self, next_position)
 
-    # Reset the traits of the duck and add a mutation.
     def reset(self, traits):
+        """ Reset the traits of the duck and add a mutation."""
+
         # traits only consist of aggression
         aggression = traits[0]
         if np.random.random() < self.mutation:
