@@ -48,7 +48,7 @@ def make_results(name):
 def analyze_results(name):
     Si = pickle.load( open("data/" + name, "rb" ) )
 
-    var_names = ['Density', 'Season length', 'Mutation', 'Partner egg', 'Base succes mate']
+    var_names = ['Density', 'Season length', 'Mutation chance', 'Initial mate copulation', 'Base mating succes']
 
     fig = plt.figure(figsize=(12, 6))
     ax1 = fig.add_subplot(121)
