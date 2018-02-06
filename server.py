@@ -10,6 +10,8 @@ WIDTH = 50
 HEIGHT = 50
 
 def duck_portrayal(duck):
+    """ Information about the agents for the animation. """
+
     if isinstance(duck, FemaleDuckAgent):
         c = 'red'
         r = 1
@@ -37,6 +39,7 @@ base_succes_mate = UserSettableParameter("slider", "Base success chance of matin
 histogram = HistogramModule(list(range(1,21)), 200, 500)
 grid = CanvasGrid(duck_portrayal, WIDTH, HEIGHT, 500, 500)
 
+# Model arguments and server setup.
 model_args = {'N':number_agent, 'width':WIDTH, 'height':HEIGHT, "season_length": season_length,
                 "mutation": mutation, "partner_egg": partner_egg, "base_succes_mate": base_succes_mate}
 server = ModularServer(DuckModel, [grid, histogram], 'DuckModel', model_args)
