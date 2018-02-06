@@ -3,9 +3,8 @@ This is the project for the Agent-Based Modelling course at the UvA.
 
 Required packages:
 DONT USE PIP IN THIS DIRECTORY!
-Because the mesa package is already included in these files, a bug in mac and ubuntu (as far as we know), completely breaks your pip! Repairing this issue is a pain, so please just pip install in home directory...
-$ pip install SAlib pandas tqdm
-
+Because the mesa package is already included in these files, a bug in mac and ubuntu (as far as we know), completely breaks your pip! Repairing this issue is a pain, so please just pip install while in home directory...
+$ pip install SAlib pandas tqdm joblib tornado
 
 
 DuckModel.py:
@@ -25,7 +24,7 @@ The result of every simulation run are saved and can be later loaded to give
 plots of the std, mean and histogram of the aggressiveness.
 
 main.py:
-Calculates the sensitivity analysis for the duckmodel.
+Calculates the sensitivity analysis for the duckmodel. Uses params.txt to set the parameter ranges.
 
 test.py:
 Test whether all the function give the correct outputs.
