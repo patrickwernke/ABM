@@ -75,6 +75,8 @@ def load_model(name):
 
 
 if __name__ == '__main__':
+    """ Extract a dataframe from the model after each timestep and save it to a file.
+    The model output and paramters can later be loaded in again. """
     n = 500
     width = 100
     height = 100
@@ -84,91 +86,88 @@ if __name__ == '__main__':
     base_succes_mate = 0.1
     runtime = 10000
 
+    def run_model():
+        """ Run the model once and save model to file. """
+        m = duckmodel.DuckModel(n,width,height, season_length, mutation, partner_egg, base_succes_mate)
 
-    # # DATA AGGREGATION FROM HERE.....
-    # from joblib import Parallel, delayed
-    # from tqdm import tqdm
-    # # runs the model, saves the data, returns the name of file with the new data
-    # def run_model():
-    #     m = duckmodel.DuckModel(n,width,height, season_length, mutation, partner_egg, base_succes_mate)
+        # Run that model.
+        for _ in range(runtime):
+            m.step()
 
-    #     # run that model
-    #     for _ in range(runtime):
-    #         m.step()
+        # Save the important values with a datename.
+        name = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
+        save_model(DuckData(m), name)
+        return name
 
-    #     # save the important values with a datename
-    #     name = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
-    #     save_model(DuckData(m), name)
-    #     return name
+    def data_collection():
+        """Collect the data from several runs over multiple cores in parallel. """
+        from joblib import Parallel, delayed
+        from tqdm import tqdm
 
-    # duckdatas = []
-    # n_runs = 4  # number of parralel data aggregations
-    # n_jobs = 3 # number of cores here
+        duckdatas = []
+        n_runs = 4  # number of parralel data aggregations
+        n_jobs = 3 # number of cores here
 
-    # for _ in tqdm(range(n_runs)):
-    #     duckdatas += Parallel(n_jobs=3)(delayed(run_model)() for _ in range(n_jobs))
+        for _ in tqdm(range(n_runs)):
+            duckdatas += Parallel(n_jobs=3)(delayed(run_model)() for _ in range(n_jobs))
 
-    # # copy this into duckdatas below to show results
-    # print(duckdatas)
-
-    # # ... TO HERE
-
-    # partner egg = 8
-    # duckdatas = ['2018-02-02T18:04:41.402', '2018-02-02T18:03:26.283', '2018-02-02T17:50:53.859', '2018-02-02T20:01:03.725', '2018-02-02T19:38:50.023', '2018-02-02T19:59:55.054']
-    duckdatas = ['2018-02-03T08:15:47.797', '2018-02-03T08:23:58.476', '2018-02-03T08:11:53.388', '2018-02-03T08:53:57.890', '2018-02-03T08:51:21.119', '2018-02-03T08:54:14.803', '2018-02-03T09:33:18.604', '2018-02-03T09:30:22.135', '2018-02-03T09:23:53.713', '2018-02-03T10:01:40.659', '2018-02-03T10:07:57.283', '2018-02-03T10:09:33.320']
-
-    all_stds = []
-    all_means = []
-    end_aggs = []
-
-    # Two subplots, the axes array is 1-d
-    f, ax = plt.subplots(2, sharex=True)
-    ax[0].set_title("Aggression over time")
-    ax[0].set_ylabel("Standard deviation")
-    ax[1].set_xlabel("Runtime (steps)")
-    ax[1].set_ylabel("Mean")
-
-    for name in duckdatas:
-        data = load_model(name)
-        # save all stds in a single list
-        all_stds.append(data.stds)
-        all_means.append(data.means)
-
-        # plot stds and means
-        ax[0].plot(data.stds)
-        ax[1].plot(data.means)
-
-        # histogram of last aggressions of all runs
-        # end_aggs = np.concatenate((end_aggs, data.aggs[runtime-1,:]))
-        # histogram of last aggressions of 1 run
-        end_aggs = data.aggs[runtime-1,:]
+        # copy this into duckdatas below to show results
+        print(duckdatas)
 
 
-        plt.hist(end_aggs, np.unique(end_aggs), align="mid", rwidth=0.8)
+    def analyze_results():
+        """ Analyze the results of all the model outputs"""
+        # The current data files are not present due to their sizes.
+        duckdatas = ['2018-02-03T08:15:47.797', '2018-02-03T08:23:58.476', '2018-02-03T08:11:53.388', '2018-02-03T08:53:57.890', '2018-02-03T08:51:21.119', '2018-02-03T08:54:14.803', '2018-02-03T09:33:18.604', '2018-02-03T09:30:22.135', '2018-02-03T09:23:53.713', '2018-02-03T10:01:40.659', '2018-02-03T10:07:57.283', '2018-02-03T10:09:33.320']
+
+        all_stds = []
+        all_means = []
+        end_aggs = []
+
+        # Two subplots, the axes array is 1-d
+        f, ax = plt.subplots(2, sharex=True)
+        ax[0].set_title("Aggression over time")
+        ax[0].set_ylabel("Standard deviation")
+        ax[1].set_xlabel("Runtime (steps)")
+        ax[1].set_ylabel("Mean")
+
+        # For every model run load std and mean and plot it.
+        for name in duckdatas:
+            data = load_model(name)
+            # save all stds in a single list
+            all_stds.append(data.stds)
+            all_means.append(data.means)
+
+            # plot stds and means
+            ax[0].plot(data.stds)
+            ax[1].plot(data.means)
+
+            # histogram of last aggressions of 1 run
+            end_aggs = data.aggs[runtime-1,:]
+
+        plt.show()
+
+        # Average the mean and std and plot with 95% confidence interval.
+        all_stds = np.array(all_stds)
+        all_means = np.array(all_means)
+        t = range(0, runtime)
+        plt.subplot(2,1,1)
+        plt.plot(t, np.mean(all_stds, axis=0))
+        plt.fill_between(t, np.mean(all_stds, axis=0) + np.std(all_stds, axis=0)/len(duckdatas)**0.5, np.mean(all_stds, axis=0) - np.std(all_stds, axis=0)/len(duckdatas)**0.5, alpha = '0.5')
+        plt.xlabel("t")
+        plt.ylabel("standard deviation")
+
+        plt.subplot(2,1,2)
+        plt.plot(t, np.mean(all_means, axis=0))
+        plt.fill_between(t, np.mean(all_means, axis=0) + np.std(all_means, axis=0)/len(duckdatas)**0.5, np.mean(all_means, axis=0) - np.std(all_means, axis=0)/len(duckdatas)**0.5, alpha = '0.5')
+        plt.xlabel("t")
+        plt.ylabel("mean")
+        plt.show()
+
+        # show a histogram of the aggression of all the male ducks at the last timestep.
+        plt.hist(end_aggs, np.unique(end_aggs), align="left", rwidth=0.8)
         plt.xlabel("level male duck aggressiveness")
         plt.ylabel("number of ducks")
         plt.show()
 
-    plt.show()
-
-
-    all_stds = np.array(all_stds)
-    all_means = np.array(all_means)
-    t = range(0, runtime)
-    plt.subplot(2,1,1)
-    plt.plot(t, np.mean(all_stds, axis=0))
-    plt.fill_between(t, np.mean(all_stds, axis=0) + np.std(all_stds, axis=0)/len(duckdatas)**0.5, np.mean(all_stds, axis=0) - np.std(all_stds, axis=0)/len(duckdatas)**0.5, alpha = '0.5')
-    plt.xlabel("t")
-    plt.ylabel("standard deviation")
-
-    plt.subplot(2,1,2)
-    plt.plot(t, np.mean(all_means, axis=0))
-    plt.fill_between(t, np.mean(all_means, axis=0) + np.std(all_means, axis=0)/len(duckdatas)**0.5, np.mean(all_means, axis=0) - np.std(all_means, axis=0)/len(duckdatas)**0.5, alpha = '0.5')
-    plt.xlabel("t")
-    plt.ylabel("mean")
-    plt.show()
-
-    plt.hist(end_aggs, np.unique(end_aggs), align="left", rwidth=0.8)
-    plt.xlabel("level male duck aggressiveness")
-    plt.ylabel("number of ducks")
-    plt.show()
+    analyze_results()

@@ -112,7 +112,7 @@ class DuckModel(Model):
         self.schedule.step()
 
     def endseason(self):
-    """Pass on the genes of the ducks that have mated. 50 percent of all the male ducks die after a season."""
+        """Pass on the genes of the ducks that have mated. 50 percent of all the male ducks die after a season."""
         # number of new ducklings
         total_new = np.random.binomial(self.num_agents, .5)
 
@@ -156,7 +156,7 @@ class FemaleDuckAgent(Agent):
         self.data = partner_egg
 
     def step(self):
-    """Move the female duck into a random position within a maximum radius."""
+        """Move the female duck into a random position within a maximum radius."""
         possible_steps = list(moveducks.von_neumann_neighborhood(self.model, self.pos, 2))
 
         # Loop over every possible cell until a cell with no female has been found.
@@ -175,7 +175,7 @@ class FemaleDuckAgent(Agent):
             possible_steps.remove(new_position)
 
     def succes_mating(self):
-    """Calculate the chance of successful mating."""
+        """Calculate the chance of successful mating."""
         max_distance = 20
 
         # Success chance linearly increases if the male is further away until some threshold.
@@ -187,21 +187,21 @@ class FemaleDuckAgent(Agent):
         return self.base_succes + variable_chance
 
     def mating(self,ID):
-    """Add one mating to the possible list of mates."""
+        """Add one mating to the possible list of mates."""
         if np.random.random() < self.succes_mating():
             self.numsex[ID] = self.numsex.get(ID, 0) + 1
             # represents number of successful sexual encounters
             self.data+=1
 
     def get_id_newduck(self):
-    """choose a male from all sexual encounters in this season."""
+        """choose a male from all sexual encounters in this season."""
         duck_id = np.random.choice(list(self.numsex.keys()),
                     p = np.array(list(self.numsex.values()))/sum(self.numsex.values()) )
 
         return duck_id
 
     def reset(self):
-    """Reset the mate list of the duck."""
+        """Reset the mate list of the duck."""
         self.numsex = {}
         self.numsex[self.mate_id] = self.partner_egg
         self.data = self.partner_egg
@@ -218,7 +218,7 @@ class MaleDuckAgent(Agent):
         self.data=aggression
 
     def step(self):
-    """Move toward a female in range and mate, or move randomly."""
+        """Move toward a female in range and mate, or move randomly."""
         random_number = abs(int(np.random.normal(0, self.aggression)))
         mate_pos = self.model.get_duck_by_id(self.mate_id).pos
 
