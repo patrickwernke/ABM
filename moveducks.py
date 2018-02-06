@@ -2,20 +2,20 @@ def von_neumann_neighborhood(model, pos, radius):
     """
     Given a position and a radius in a model,
     returns the correct von neumann neighborhood.
-    
-    If radius is large compared to the grid, can 
+
+    If radius is large compared to the grid, can
     return certain positions more than once.
-    
-    Mesa's implementation is entirely incorrect, 
+
+    Mesa's implementation is entirely incorrect,
     thus necessitating this function.
     """
 
 
     max_height = model.grid.height
     max_width = model.grid.width
-    
+
     p = []
-    
+
     #i=j=0
     p.append(pos)
     #i=0
@@ -35,23 +35,11 @@ def von_neumann_neighborhood(model, pos, radius):
             for po in [p1,p2,p3,p4]:
                 p.append(po)
     return p
-                
+
 def get_neighbors(model, neighborhood):
     """Returns all agents in a neighborhood"""
     agents = model.grid.get_cell_list_contents(neighborhood)
     return list(set(agents))
-                
+
 if __name__ == '__main__':
-    from duckmodel import DuckModel
-    m=DuckModel(1, 10, 10)
-    result = list(von_neumann_neighborhood(m, (1,1), 3))
-    result.sort()
-    print(result)
-    
-    import matplotlib.pyplot as plt
-    import numpy as np
-    a=np.zeros((10,10))
-    for pos in von_neumann_neighborhood(m, (1,3), 3):
-        a[pos[0], pos[1]] = 1
-    plt.imshow(a)
-    plt.show()
+    pass
