@@ -3,6 +3,7 @@ from duckmodel import MaleDuckAgent
 import numpy as np
 
 class HistogramModule(VisualizationElement):
+    """ Creates the possiblity to create a histogram in the animation. """
     package_includes = ["Chart.min.js"]
     local_includes = ["HistogramModule.js"]
 
@@ -10,12 +11,12 @@ class HistogramModule(VisualizationElement):
         self.canvas_height = canvas_height
         self.canvas_width = canvas_width
         self.bins = bins
-        new_element = "new HistogramModule({}, {}, {})".format(bins, 
-                                                               canvas_width, 
+        new_element = "new HistogramModule({}, {}, {})".format(bins,
+                                                               canvas_width,
                                                                canvas_height)
 
         self.js_code = "elements.push(" + new_element + ");"
-    
+
     def render(self, model):
         wealth_vals = [agent.aggression for agent in model.schedule.agents if isinstance(agent, MaleDuckAgent)]
         hist = np.histogram(wealth_vals, bins=self.bins)[0]
