@@ -84,36 +84,38 @@ if __name__ == '__main__':
     base_succes_mate = 0.1
     runtime = 10000
 
+
     # # DATA AGGREGATION FROM HERE.....
     # from joblib import Parallel, delayed
     # from tqdm import tqdm
     # # runs the model, saves the data, returns the name of file with the new data
     # def run_model():
     #     m = duckmodel.DuckModel(n,width,height, season_length, mutation, partner_egg, base_succes_mate)
-    #
+
     #     # run that model
     #     for _ in range(runtime):
     #         m.step()
-    #
+
     #     # save the important values with a datename
     #     name = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]
     #     save_model(DuckData(m), name)
     #     return name
-    #
+
     # duckdatas = []
     # n_runs = 4  # number of parralel data aggregations
     # n_jobs = 3 # number of cores here
+
     # for _ in tqdm(range(n_runs)):
     #     duckdatas += Parallel(n_jobs=3)(delayed(run_model)() for _ in range(n_jobs))
-    #
+
     # # copy this into duckdatas below to show results
     # print(duckdatas)
-    # #... TO HERE
+
+    # # ... TO HERE
 
     # partner egg = 8
     # duckdatas = ['2018-02-02T18:04:41.402', '2018-02-02T18:03:26.283', '2018-02-02T17:50:53.859', '2018-02-02T20:01:03.725', '2018-02-02T19:38:50.023', '2018-02-02T19:59:55.054']
     duckdatas = ['2018-02-03T08:15:47.797', '2018-02-03T08:23:58.476', '2018-02-03T08:11:53.388', '2018-02-03T08:53:57.890', '2018-02-03T08:51:21.119', '2018-02-03T08:54:14.803', '2018-02-03T09:33:18.604', '2018-02-03T09:30:22.135', '2018-02-03T09:23:53.713', '2018-02-03T10:01:40.659', '2018-02-03T10:07:57.283', '2018-02-03T10:09:33.320']
-
 
     all_stds = []
     all_means = []
@@ -166,7 +168,7 @@ if __name__ == '__main__':
     plt.ylabel("mean")
     plt.show()
 
-    plt.hist(end_aggs, np.unique(end_aggs), align="mid", rwidth=0.8)
+    plt.hist(end_aggs, np.unique(end_aggs), align="left", rwidth=0.8)
     plt.xlabel("level male duck aggressiveness")
     plt.ylabel("number of ducks")
     plt.show()
