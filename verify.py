@@ -94,5 +94,5 @@ if __name__ == "__main__":
     test_moveducks()
     test_duckmodel()
     test_ducks()
-    print("Tests successful")
+    print("Verification successful")
     

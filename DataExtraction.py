@@ -67,11 +67,11 @@ def get_male_aggression(model):
 7
 # save parameters and data of a model
 def save_model(duckdata, name):
-    pickle.dump( duckdata, open("data1/" + name, "wb" ) )
+    pickle.dump( duckdata, open("data/" + name, "wb" ) )
 
 # load parameters and data of a model
 def load_model(name):
-    return pickle.load( open("data1/" + name, "rb" ) )
+    return pickle.load( open("data/" + name, "rb" ) )
 
 
 if __name__ == '__main__':
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     mutation = 0.1
     partner_egg = 8
     base_succes_mate = 0.1
-    runtime = 10000
+    runtime = 1000
 
     def run_model():
         """ Run the model once and save model to file. """
@@ -105,7 +105,7 @@ if __name__ == '__main__':
         from tqdm import tqdm
 
         duckdatas = []
-        n_runs = 4  # number of parralel data aggregations
+        n_runs = 2  # number of parralel data aggregations
         n_jobs = 3 # number of cores here
 
         for _ in tqdm(range(n_runs)):
@@ -113,12 +113,13 @@ if __name__ == '__main__':
 
         # copy this into duckdatas below to show results
         print(duckdatas)
+        return duckdatas
 
 
-    def analyze_results():
+    def analyze_results(duckdatas=[]):
         """ Analyze the results of all the model outputs"""
         # The current data files are not present due to their sizes.
-        duckdatas = ['2018-02-03T08:15:47.797', '2018-02-03T08:23:58.476', '2018-02-03T08:11:53.388', '2018-02-03T08:53:57.890', '2018-02-03T08:51:21.119', '2018-02-03T08:54:14.803', '2018-02-03T09:33:18.604', '2018-02-03T09:30:22.135', '2018-02-03T09:23:53.713', '2018-02-03T10:01:40.659', '2018-02-03T10:07:57.283', '2018-02-03T10:09:33.320']
+        # duckdatas = ['2018-02-03T08:15:47.797', '2018-02-03T08:23:58.476', '2018-02-03T08:11:53.388', '2018-02-03T08:53:57.890', '2018-02-03T08:51:21.119', '2018-02-03T08:54:14.803', '2018-02-03T09:33:18.604', '2018-02-03T09:30:22.135', '2018-02-03T09:23:53.713', '2018-02-03T10:01:40.659', '2018-02-03T10:07:57.283', '2018-02-03T10:09:33.320']
 
         all_stds = []
         all_means = []
@@ -170,4 +171,5 @@ if __name__ == '__main__':
         plt.ylabel("number of ducks")
         plt.show()
 
-    analyze_results()
+    dd = data_collection()
+    analyze_results(dd)
